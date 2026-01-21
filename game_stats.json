@@ -1,0 +1,7 @@
+{
+    "enemies_killed": 0,
+    "player_collisions": 0,
+    "projectiles_fired": 3,
+    "projectiles_hit": 0,
+    "hit_accuracy_percent": 0.0
+}
