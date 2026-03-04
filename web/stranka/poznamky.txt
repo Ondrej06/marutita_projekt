@@ -1,0 +1,16 @@
+Testování 
+ověřování zda software funguje dle očekávání
+identifikují chyby v softwaru ->zaznamenaní chyby -> informování o chybě
+detailný popis chyby jak se stalo co se stalo, jak se kto mu dostali co tomu předcházelo 
+následně tyto informace jsou použity pro opravu chyby
+
+
+Testování lze rozdělit na:
+jednotkové testy: tento tip je prováden vývojáři nikoli testery, 
+kotrola každeho modulu že funguje tak jak má 
+
+integrační testy: kontrola dat mezi dvěma moduly
+
+systémové : test celého systemuz
+
+toto je funkční tetsování , pak je i nefunkční tetsování které kontroluje nefunkční aspekty systému 

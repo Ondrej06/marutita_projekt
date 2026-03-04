@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagramy a informace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .diagram-section {
+            margin-bottom: 50px;
+        }
+        .diagram-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .diagram-item {
+            flex: 1 1 400px; /* minimální šířka 400px, může se roztahovat */
+            max-width: 500px;
+            text-align: center;
+        }
+        .diagram-item h3 {
+            color: #00ffff;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        .diagram-image {
+            width: 100%;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            background: rgba(20, 20, 40, 0.5);
+            padding: 8px;
+        }
+        .game-description {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(20,20,40,0.8);
+            border-radius: 30px;
+            padding: 30px;
+            text-align: left;
+        }
+        /* Responzivní úprava: pod sebou na menších obrazovkách */
+        @media (max-width: 900px) {
+            .diagram-item {
+                flex: 1 1 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+            <h1>Diagramy a informace</h1>
+            <a href="{{ url_for('dashboard') }}" class="nav-link">Zpět na dashboard</a>
+        </div>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('logout') }}" class="account-dropdown">Odhlásit se</a>
+        {% else %}
+            <div class="account-dropdown">
+                Účet ▼
+                <div class="dropdown-content">
+                    <a href="{{ url_for('login') }}">Přihlásit se</a>
+                    <a href="{{ url_for('register') }}">Registrovat</a>
+                </div>
+            </div>
+        {% endif %}
+    </header>
+
+    <main style="display: block;">
+        <!-- Sekce s diagramy vedle sebe -->
+        <section class="diagram-section">
+            <h2 style="color: #00ffff; text-align: center;">Diagramy</h2>
+            <div class="diagram-row">
+                <div class="diagram-item">
+                    <h3>Vývojový diagram</h3>
+                    <img src="{{ url_for('static', filename='Flow.png') }}" alt="Vývojový diagram" class="diagram-image">
+                </div>
+                <div class="diagram-item">
+                    <h3>ER diagram</h3>
+                    <img src="{{ url_for('static', filename='ERD.png') }}" alt="ER diagram" class="diagram-image">
+                </div>
+            </div>
+        </section>
+
+        <!-- Popis hry -->
+        <section class="diagram-section">
+            <h2 style="color: #00ffff; text-align: center;">Popis hry</h2>
+            <div class="game-description">
+                <h3>O hře</h3>
+                <p><strong>Projectile Combat</strong> je rychlá arénová střílečka zasazená do temného vesmírného prostředí. Hráč ovládá malou, ale obratnou loďku a musí čelit vlnám nepřátel, kteří se ho snaží zničit. Každá hra je jedinečná díky náhodně generovaným efektům projektilů a neustále se zvyšující obtížnosti.</p>
+                <h3>Cíl hry</h3>
+                <p>Přežijte co nejdéle! S každým dalším nepřítelem roste vaše skóre a odemykají se nové výzvy. Hra končí, když vám dojde zdraví – pak se všechny statistiky z této hry uloží a vy se můžete porovnat s ostatními hráči na webovém dashboardu.</p>
+                <h3>Ovládání</h3>
+                <ul>
+                    <li><strong>Pohyb:</strong> WASD – vlevo, vpravo, skok/létání (mezerník)</li>
+                    <li><strong>Létání:</strong> Podržte <strong>mezerník</strong> – spotřebovává výdrž (staminu). Na zemi se výdrž regeneruje.</li>
+                    <li><strong>Dash:</strong> Stiskněte <strong>CTRL</strong> + směr (A/D) – rychlý úskok s krátkou dobou nesmrtelnosti. Dash má cooldown.</li>
+                    <li><strong>Střelba:</strong> Levé tlačítko myši – vystřelí projektil směrem ke kurzoru. Střelba má krátké zpoždění (300 ms).</li>
+                </ul>
+                <h3>Projektily a jejich efekty</h3>
+                <p>Každý výstřel má náhodnou barvu, která určuje speciální efekt. Díky tomu je každá hra pokaždé jiná:</p>
+                <ul>
+                    <li><span style="color: #ff00ff;">Fialová (explosive)</span> – výbušný projektil, při zásahu poškodí i nepřátele v okolí.</li>
+                    <li><span style="color: #00ff00;">Zelená (dot)</span> – způsobuje poškození v čase (Damage over Time).</li>
+                    <li><span style="color: #ffffff;">Bílá (slow)</span> – zpomalí nepřítele na krátkou dobu.</li>
+                    <li><span style="color: #ff00ff;">Světle fialová (pierce)</span> – průrazný projektil, může zasáhnout více nepřátel za sebou.</li>
+                    <li><span style="color: #ffff00;">Žlutá (heal)</span> – při zásahu vás nepatrně vyléčí.</li>
+                    <li><span style="color: #ff0000;">Červená (explosive)</span> – další varianta výbušného efektu.</li>
+                </ul>
+                <h3>Nepřátelé</h3>
+                <p>Nepřátelé se spawnují v pravidelných intervalech po stranách obrazovky a pohybují se směrem k hráči. Jejich rychlost a životy se postupně zvyšují. Každý nepřítel po smrti vytvoří efekt částic a přičte se do statistiky „Zabito nepřátel“.</p>
+                <h3>Zdraví a výdrž</h3>
+                <ul>
+                    <li><strong>Zdraví:</strong> Ubývá při kontaktu s nepřítelem (maximálně jednou za 500 ms). Po pádu na nulu hra končí.</li>
+                    <li><strong>Výdrž (stamina):</strong> Spotřebovává se při létání. Na zemi se rychle regeneruje. Bez výdrže nelze létat.</li>
+                    <li><strong>Dash:</strong> Během dash jste nezranitelní. Cooldown dash je 1 vteřina.</li>
+                </ul>
+                <h3>Statistiky a ukládání</h3>
+                <p>Každá vaše hra je zaznamenána – vidíte datum, počet zabitých nepřátel, kolizí, výstřelů, zásahů a přesnost. Nejlepší výkony se ukládají do vašeho profilu a na webu si je můžete prohlížet a porovnávat s ostatními hráči. Admin má navíc přehled o všech uživatelích a jejich aktivitě.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Moje Hra. Všechna práva vyhrazena.</p>
+    </footer>
+</div>
+</body>
+</html>

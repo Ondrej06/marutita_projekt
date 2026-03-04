@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Herní statistiky</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <!-- HEADER -->
+    <header>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <h1>
+                {% if current_user.is_authenticated %}
+                    Vítej, {{ current_user.username }}!
+                {% else %}
+                    Vítej, hoste!
+                {% endif %}
+            </h1>
+            <a href="{{ url_for('diagrams') }}" class="nav-link">Diagramy</a>
+        </div>
+
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('logout') }}" class="account-dropdown">Odhlásit se</a>
+        {% else %}
+            <div class="account-dropdown">
+                Účet ▼
+                <div class="dropdown-content">
+                    <a href="{{ url_for('login') }}">Přihlásit se</a>
+                    <a href="{{ url_for('register') }}">Registrovat</a>
+                </div>
+            </div>
+        {% endif %}
+    </header>
+
+    <!-- FLASH ZPRÁVY -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- ADMIN SEKCE -->
+    {% if current_user.is_authenticated and current_user.is_admin %}
+        <!-- Tabulka uživatelů -->
+        <div class="admin-table">
+            <h2>Registrovaní uživatelé</h2>
+            <div class="admin-table-container">
+                <table class="sortable">
+                    <thead>
+                        <tr>
+                            <th data-sort="number">ID</th>
+                            <th data-sort="string">Uživatelské jméno</th>
+                            <th data-sort="string">Email</th>
+                            <th data-sort="string">Admin</th>
+                            <th data-sort="date">Registrován</th>
+                            <th>Akce</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td data-label="ID">{{ user.id }}</td>
+                            <td data-label="Uživatelské jméno">{{ user.username }}</td>
+                            <td data-label="Email">{{ user.email }}</td>
+                            <td data-label="Admin">{{ "Ano" if user.is_admin else "Ne" }}</td>
+                            <td data-label="Registrován" data-sort-value="{{ user.created_at.timestamp() if user.created_at else 0 }}">
+                                {{ user.created_at.strftime("%d.%m.%Y %H:%M") if user.created_at else "—" }}
+                            </td>
+                            <td data-label="Akce">
+                                {% if user.id != current_user.id %}
+                                <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}"
+                                      onsubmit="return confirm('Opravdu smazat tohoto uživatele?');">
+                                    <button type="submit" class="delete-btn">Smazat</button>
+                                </form>
+                                {% else %}
+                                    <em>aktuální uživatel</em>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tabulka všech session -->
+        <div class="admin-table">
+            <h2>Všechny herní session</h2>
+            <div class="admin-table-container">
+                <table class="sortable">
+                    <thead>
+                        <tr>
+                            <th data-sort="string">Uživatel</th>
+                            <th data-sort="date">Datum a čas</th>
+                            <th data-sort="number">Zabito nepřátel</th>
+                            <th data-sort="number">Kolize</th>
+                            <th data-sort="number">Výstřelů</th>
+                            <th data-sort="number">Zásahů</th>
+                            <th data-sort="number">Přesnost</th>
+                            <th data-sort="number">Doba hraní</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session, user in sessions %}
+                        <tr>
+                            <td data-label="Uživatel">{{ user.username }}</td>
+                            <td data-label="Datum a čas" data-sort-value="{{ session.timestamp.timestamp() }}">
+                                {{ session.timestamp.strftime("%d.%m.%Y %H:%M") }}
+                            </td>
+                            <td data-label="Zabito nepřátel">{{ session.enemies_killed }}</td>
+                            <td data-label="Kolize">{{ session.player_collisions }}</td>
+                            <td data-label="Výstřelů">{{ session.projectiles_fired }}</td>
+                            <td data-label="Zásahů">{{ session.projectiles_hit }}</td>
+                            <td data-label="Přesnost" data-sort-value="{{ (session.projectiles_hit / session.projectiles_fired * 100) if session.projectiles_fired > 0 else 0 }}">
+                                {% if session.projectiles_fired > 0 %}
+                                    {{ (session.projectiles_hit / session.projectiles_fired * 100) | round(1) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </td>
+                            <td data-label="Doba hraní" data-sort-value="{{ session.time_played }}">
+                                {% set minutes = (session.time_played // 60) | int %}
+                                {% set seconds = (session.time_played % 60) | int %}
+                                {{ minutes }}:{{ '%02d' % seconds }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    <!-- BĚŽNÝ UŽIVATEL -->
+    {% elif current_user.is_authenticated %}
+        <main>
+            <!-- Levý sloupec: všechny herní session -->
+            <div class="left-box">
+                <h2>Všechny herní session</h2>
+                <table class="sortable">
+                    <thead>
+                        <tr>
+                            <th data-sort="string">Uživatel</th>
+                            <th data-sort="date">Datum a čas</th>
+                            <th data-sort="number">Zabito nepřátel</th>
+                            <th data-sort="number">Kolize</th>
+                            <th data-sort="number">Výstřelů</th>
+                            <th data-sort="number">Zásahů</th>
+                            <th data-sort="number">Přesnost</th>
+                            <th data-sort="number">Doba hraní</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session, user in sessions %}
+                        <tr>
+                            <td data-label="Uživatel">{{ user.username }}</td>
+                            <td data-label="Datum a čas" data-sort-value="{{ session.timestamp.timestamp() }}">
+                                {{ session.timestamp.strftime("%d.%m.%Y %H:%M") }}
+                            </td>
+                            <td data-label="Zabito nepřátel">{{ session.enemies_killed }}</td>
+                            <td data-label="Kolize">{{ session.player_collisions }}</td>
+                            <td data-label="Výstřelů">{{ session.projectiles_fired }}</td>
+                            <td data-label="Zásahů">{{ session.projectiles_hit }}</td>
+                            <td data-label="Přesnost" data-sort-value="{{ (session.projectiles_hit / session.projectiles_fired * 100) if session.projectiles_fired > 0 else 0 }}">
+                                {% if session.projectiles_fired > 0 %}
+                                    {{ (session.projectiles_hit / session.projectiles_fired * 100) | round(1) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </td>
+                            <td data-label="Doba hraní" data-sort-value="{{ session.time_played }}">
+                                {% set minutes = (session.time_played // 60) | int %}
+                                {% set seconds = (session.time_played % 60) | int %}
+                                {{ minutes }}:{{ '%02d' % seconds }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pravý sloupec: nejlepší statistiky a popis hry -->
+            <div class="right-box">
+                <div class="player-stats">
+                    <h3>Moje nejlepší hodnoty</h3>
+                    <div class="stats-blocks">
+                        <div class="stat-block">
+                            <h4>Zabito nepřátel</h4>
+                            <p>{{ best_stats.enemies_killed }}</p>
+                        </div>
+                        <div class="stat-block">
+                            <h4>Kolize</h4>
+                            <p>{{ best_stats.player_collisions }}</p>
+                        </div>
+                        <div class="stat-block">
+                            <h4>Výstřelů</h4>
+                            <p>{{ best_stats.projectiles_fired }}</p>
+                        </div>
+                        <div class="stat-block">
+                            <h4>Zásahů</h4>
+                            <p>{{ best_stats.projectiles_hit }}</p>
+                        </div>
+                        <div class="stat-block">
+                            <h4>Nejlepší přesnost</h4>
+                            <p>{{ best_stats.accuracy | round(1) }}%</p>
+                        </div>
+                        <div class="stat-block">
+                            <h4>Nejdelší hra</h4>
+                            <p>
+                                {% set minutes = (best_stats.time_played // 60) | int %}
+                                {% set seconds = (best_stats.time_played % 60) | int %}
+                                {{ minutes }}:{{ '%02d' % seconds }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Popis hry -->
+                <div class="game-description">
+    <h2>O hře</h2>
+    <p><strong>Projectile Combat</strong> je rychlá arénová střílečka zasazená do temného vesmírného prostředí. Hráč ovládá malou, ale obratnou loďku (nebo postavu) a musí čelit vlnám nepřátel, kteří se ho snaží zničit. Každá hra je jedinečná díky náhodně generovaným efektům projektilů a neustále se zvyšující obtížnosti.</p>
+
+    <h3>Cíl hry</h3>
+    <p>Přežijte co nejdéle! S každým dalším nepřítelem roste vaše skóre a odemykají se nové výzvy. Hra končí, když vám dojde zdraví – pak se všechny statistiky z této hry uloží a vy se můžete porovnat s ostatními hráči na webovém dashboardu.</p>
+
+    <h3>Ovládání</h3>
+    <ul>
+        <li><strong>Pohyb:</strong> WASD – vlevo, vpravo, skok/létání (mezerník)</li>
+        <li><strong>Létání:</strong> Podržte <strong>mezerník</strong> – spotřebovává výdrž (staminu). Na zemi se výdrž regeneruje.</li>
+        <li><strong>Dash:</strong> Stiskněte <strong>CTRL</strong> + směr (A/D) – rychlý úskok s krátkou dobou nesmrtelnosti. Dash má cooldown.</li>
+        <li><strong>Střelba:</strong> Levé tlačítko myši – vystřelí projektil směrem ke kurzoru. Střelba má krátké zpoždění (300 ms).</li>
+    </ul>
+
+    <h3>Projektily a jejich efekty</h3>
+    <p>Každý výstřel má náhodnou barvu, která určuje speciální efekt. Díky tomu je každá hra pokaždé jiná:</p>
+    <ul>
+        <li><span style="color: #ff00ff;">Fialová (explosive)</span> – výbušný projektil, při zásahu poškodí i nepřátele v okolí.</li>
+        <li><span style="color: #00ff00;">Zelená (dot)</span> – způsobuje poškození v čase (Damage over Time).</li>
+        <li><span style="color: #ffffff;">Bílá (slow)</span> – zpomalí nepřítele na krátkou dobu.</li>
+        <li><span style="color: #ff00ff;">Světle fialová (pierce)</span> – průrazný projektil, může zasáhnout více nepřátel za sebou.</li>
+        <li><span style="color: #ffff00;">Žlutá (heal)</span> – při zásahu vás nepatrně vyléčí.</li>
+        <li><span style="color: #ff0000;">Červená (explosive)</span> – další varianta výbušného efektu.</li>
+    </ul>
+    <p>Projektily podléhají gravitaci a vzdušnému odporu, takže je třeba mířit s mírným nadhledem.</p>
+
+    <h3>Nepřátelé</h3>
+    <p>Nepřátelé se spawnují v pravidelných intervalech po stranách obrazovky a pohybují se směrem k hráči. Jejich rychlost a životy se postupně zvyšují. Každý nepřítel po smrti vytvoří efekt částic a přičte se do statistiky „Zabito nepřátel“.</p>
+
+    <h3>Zdraví a výdrž</h3>
+    <ul>
+        <li><strong>Zdraví:</strong> Ubývá při kontaktu s nepřítelem (maximálně jednou za 500 ms). Po pádu na nulu hra končí.</li>
+        <li><strong>Výdrž (stamina):</strong> Spotřebovává se při létání. Na zemi se rychle regeneruje. Bez výdrže nelze létat.</li>
+        <li><strong>Dash:</strong> Během dash jste nezranitelní. Cooldown dash je 1 vteřina.</li>
+    </ul>
+
+    <h3>Statistiky a ukládání</h3>
+    <p>Každá vaše hra je zaznamenána – vidíte datum, počet zabitých nepřátel, kolizí, výstřelů, zásahů a přesnost. Nejlepší výkony se ukládají do vašeho profilu a na webu si je můžete prohlížet a porovnávat s ostatními hráči. Admin má navíc přehled o všech uživatelích a jejich aktivitě.</p>
+
+    <h3>Tipy pro začátek</h3>
+    <ul>
+        <li>Nezůstávejte na místě – nepřátelé se pohybují neustále za vámi.</li>
+        <li>Využívejte dash k vyhýbání se těsným situacím.</li>
+        <li>Létání je užitečné, ale vyčerpává výdrž – plánujte, kdy usednete na zem.</li>
+        <li>Různé barvy projektilů mají různé efekty – experimentujte a najděte si svůj oblíbený styl.</li>
+    </ul>
+
+    <p><em>Hra je neustále ve vývoji. Těšíme se na vaše ohlasy a náměty na vylepšení!</em></p>
+</div>
+        </main>
+
+    <!-- NEPŘIHLÁŠENÝ UŽIVATEL -->
+    {% else %}
+        <main class="center-message">
+            <h2>Pro zobrazení obsahu se prosím přihlaste nebo registrujte.</h2>
+            <div>
+                <a href="{{ url_for('login') }}" class="account-dropdown">Přihlásit se</a>
+                <a href="{{ url_for('register') }}" class="account-dropdown">Registrovat</a>
+            </div>
+        </main>
+    {% endif %}
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2025 Moje Hra. Všechna práva vyhrazena.</p>
+        <p><a href="#">Ochrana osobních údajů</a> | <a href="#">Podmínky použití</a></p>
+    </footer>
+</div>
+
+<!-- SCRIPT PRO ŘAZENÍ TABULEK -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tables = document.querySelectorAll('table.sortable');
+
+        tables.forEach(table => {
+            const headers = table.querySelectorAll('th[data-sort]');
+            let currentSort = { column: null, direction: 'asc' };
+
+            headers.forEach((header, index) => {
+                header.style.cursor = 'pointer';
+                header.addEventListener('click', () => {
+                    const column = index;
+                    const sortType = header.dataset.sort;
+
+                    if (currentSort.column === column) {
+                        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort.column = column;
+                        currentSort.direction = 'asc';
+                    }
+
+                    sortTable(table, column, sortType, currentSort.direction);
+                    updateSortIcons(headers, column, currentSort.direction);
+                });
+            });
+        });
+
+        function sortTable(table, colIndex, sortType, direction) {
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            const compare = (rowA, rowB) => {
+                let valA, valB;
+
+                if (sortType === 'number') {
+                    valA = parseFloat(rowA.cells[colIndex]?.dataset.sortValue || rowA.cells[colIndex]?.innerText) || 0;
+                    valB = parseFloat(rowB.cells[colIndex]?.dataset.sortValue || rowB.cells[colIndex]?.innerText) || 0;
+                } else if (sortType === 'date') {
+                    valA = rowA.cells[colIndex]?.dataset.sortValue || rowA.cells[colIndex]?.innerText;
+                    valB = rowB.cells[colIndex]?.dataset.sortValue || rowB.cells[colIndex]?.innerText;
+                } else {
+                    valA = rowA.cells[colIndex]?.innerText.toLowerCase() || '';
+                    valB = rowB.cells[colIndex]?.innerText.toLowerCase() || '';
+                }
+
+                if (valA < valB) return direction === 'asc' ? -1 : 1;
+                if (valA > valB) return direction === 'asc' ? 1 : -1;
+                return 0;
+            };
+
+            rows.sort(compare);
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function updateSortIcons(headers, activeCol, direction) {
+            headers.forEach((header, idx) => {
+                let icon = header.querySelector('.sort-icon');
+                if (!icon) {
+                    icon = document.createElement('span');
+                    icon.className = 'sort-icon';
+                    icon.style.marginLeft = '5px';
+                    header.appendChild(icon);
+                }
+                if (idx === activeCol) {
+                    icon.textContent = direction === 'asc' ? ' ▲' : ' ▼';
+                } else {
+                    icon.textContent = '';
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
