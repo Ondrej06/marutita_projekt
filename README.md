@@ -68,30 +68,6 @@ Jako administrátor mazat uživatele
 
 Zobrazit diagramy a podrobný popis hry
 
- Struktura projektu
-text
-marutita_projekt/
-├── Assets/                 # Grafické assety (např. back_1.png)
-├── sql/                    # SQL skripty (create, insert, select)
-├── web/
-│   └── stranka/
-│       ├── static/         # CSS, obrázky (Flow.png, ERD.png)
-│       ├── templates/      # HTML šablony (dashboard.html, diagrams.html, login.html, register.html)
-│       └── app.py          # Flask server
-├── button.py               # Třída pro tlačítka v Pygame
-├── config.py               # Konfigurace hry a menu
-├── enemy.py                # Třída nepřítele
-├── game.py                 # Původní herní smyčka (lze spustit samostatně)
-├── game_stats.json         # Lokální záloha statistik (když server neběží)
-├── import_json_to_db.py    # Skript pro ruční import JSON do DB
-├── menu.py                 # Hlavní spouštěcí soubor hry (s menu)
-├── path.py                 # Cesty k souborům
-├── player.py               # Třída hráče
-├── projectiles.py          # Třída projektilu
-├── render.py               # Vykreslování UI ve hře
-├── states.py               # Stavy hry (intro, menu, hra, login, atd.)
-├── utils.py                # Pomocné funkce
-└── visuals.py              # Efekty (hvězdy, font cache)
  Použité technologie a knihovny
 Hra
 Pygame – herní engine
