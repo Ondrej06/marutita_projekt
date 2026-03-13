@@ -97,14 +97,6 @@ Vývojový diagram – znázorňuje hlavní smyčku hry a přechody mezi stavy.
 
 ER diagram – struktura databáze (tabulky User a GameSession).
 
-Autor
-Ondřej Novotný 
-
-Projekt vznikl jako maturitní práce v roce 2025.
-
-Licence
-Tento projekt je určen pouze pro studijní účely. Všechna práva vyhrazena.
-
 Časté problémy
 pip není rozpoznán
 Použijte python -m pip install ... nebo přeinstalujte Python a zaškrtněte Add Python to PATH.
