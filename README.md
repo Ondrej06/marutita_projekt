@@ -44,7 +44,7 @@ Nechte tento terminál otevřený. Server vytvoří databázi users.db a výchoz
 
 Email: admin@example.com
 
-Heslo: admin123
+Heslo: 
 
 5. Spuštění hry
 Otevřete druhý terminál (nové okno) ve stejné složce a spusťte:
