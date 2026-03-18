@@ -1,28 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="cs">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Přihlášení</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-
-<div class="container">
-    <header>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header>
         <h1>Přihlášení</h1>
+      </header>
 
-    </header>
-
-    <form method="POST">
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Heslo" required>
+      <form method="POST">
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Heslo" required />
         <button type="submit">Přihlásit se</button>
-        <p style="color:#ccc; font-size:14px; margin-top:10px;">
-            Nemáte účet? <a href="{{ url_for('register') }}" style="color:#4cc9f0;">Registrovat</a>
+        <p style="color: #ccc; font-size: 14px; margin-top: 10px">
+          Nemáte účet?
+          <a href="{{ url_for('register') }}" style="color: #4cc9f0"
+            >Registrovat</a
+          >
         </p>
-    </form>
-</div>
-
-</body>
+      </form>
+    </div>
+  </body>
 </html>

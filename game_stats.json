@@ -43,3 +43,95 @@
     "user_id": 2,
     "username": "novotnyo"
 }
+{
+    "enemies_killed": 4,
+    "player_collisions": 0,
+    "projectiles_fired": 27,
+    "projectiles_hit": 22,
+    "timestamp": 30053,
+    "time_played": 20.614
+}
+{
+    "enemies_killed": 0,
+    "player_collisions": 0,
+    "projectiles_fired": 3,
+    "projectiles_hit": 3,
+    "timestamp": 21627,
+    "time_played": 5.581,
+    "user_id": 1,
+    "username": "admin"
+}
+{
+    "enemies_killed": 49,
+    "player_collisions": 7,
+    "projectiles_fired": 171,
+    "projectiles_hit": 213,
+    "timestamp": 126340,
+    "time_played": 116.577,
+    "user_id": 1,
+    "username": "admin"
+}
+{
+    "enemies_killed": 19,
+    "player_collisions": 0,
+    "projectiles_fired": 53,
+    "projectiles_hit": 48,
+    "timestamp": 65626,
+    "time_played": 62.633
+}
+{
+    "enemies_killed": 0,
+    "player_collisions": 0,
+    "projectiles_fired": 0,
+    "projectiles_hit": 0,
+    "time_played": 1.775,
+    "timestamp": 4090
+}
+{
+    "enemies_killed": 0,
+    "player_collisions": 0,
+    "projectiles_fired": 0,
+    "projectiles_hit": 0,
+    "timestamp": 5461,
+    "time_played": 2.967
+}
+{
+    "enemies_killed": 7,
+    "player_collisions": 7,
+    "projectiles_fired": 33,
+    "projectiles_hit": 31,
+    "timestamp": 45500,
+    "time_played": 28.601,
+    "user_id": 2,
+    "username": "novotnyo"
+}
+{
+    "enemies_killed": 11,
+    "player_collisions": 0,
+    "projectiles_fired": 49,
+    "projectiles_hit": 42,
+    "timestamp": 37043,
+    "time_played": 29.213,
+    "user_id": 2,
+    "username": "novotnyo"
+}
+{
+    "enemies_killed": 13,
+    "player_collisions": 0,
+    "projectiles_fired": 58,
+    "projectiles_hit": 53,
+    "timestamp": 47368,
+    "time_played": 38.817,
+    "user_id": 2,
+    "username": "novotnyo"
+}
+{
+    "enemies_killed": 10,
+    "player_collisions": 0,
+    "projectiles_fired": 48,
+    "projectiles_hit": 40,
+    "timestamp": 41852,
+    "time_played": 30.504,
+    "user_id": 7,
+    "username": "novotnyo"
+}

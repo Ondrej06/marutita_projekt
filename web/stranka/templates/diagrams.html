@@ -1,136 +1,346 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="cs">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Diagramy a informace</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        .diagram-section {
-            margin-bottom: 50px;
-        }
-        .diagram-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
-        }
-        .diagram-item {
-            flex: 1 1 400px; /* minimální šířka 400px, může se roztahovat */
-            max-width: 500px;
-            text-align: center;
-        }
-        .diagram-item h3 {
-            color: #00ffff;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-        }
-        .diagram-image {
-            width: 100%;
-            height: auto;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
-            border: 2px solid rgba(0, 255, 255, 0.3);
-            background: rgba(20, 20, 40, 0.5);
-            padding: 8px;
-        }
-        .game-description {
-            max-width: 900px;
-            margin: 0 auto;
-            background: rgba(20,20,40,0.8);
-            border-radius: 30px;
-            padding: 30px;
-            text-align: left;
-        }
-        /* Responzivní úprava: pod sebou na menších obrazovkách */
-        @media (max-width: 900px) {
-            .diagram-item {
-                flex: 1 1 100%;
-                max-width: 100%;
-            }
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <header>
-        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-            <h1>Diagramy a informace</h1>
-            <a href="{{ url_for('dashboard') }}" class="nav-link">Zpět na dashboard</a>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div
+          style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap"
+        >
+          <h1>Diagramy a informace</h1>
+          <a href="{{ url_for('dashboard') }}" class="nav-link"
+            >Zpět na dashboard</a
+          >
         </div>
         {% if current_user.is_authenticated %}
-            <a href="{{ url_for('logout') }}" class="account-dropdown">Odhlásit se</a>
+        <a href="{{ url_for('logout') }}" class="account-dropdown"
+          >Odhlásit se</a
+        >
         {% else %}
-            <div class="account-dropdown">
-                Účet ▼
-                <div class="dropdown-content">
-                    <a href="{{ url_for('login') }}">Přihlásit se</a>
-                    <a href="{{ url_for('register') }}">Registrovat</a>
-                </div>
-            </div>
+        <div class="account-dropdown">
+          Účet ▼
+          <div class="dropdown-content">
+            <a href="{{ url_for('login') }}">Přihlásit se</a>
+            <a href="{{ url_for('register') }}">Registrovat</a>
+          </div>
+        </div>
         {% endif %}
-    </header>
+      </header>
 
-    <main style="display: block;">
+      <main style="display: block">
         <!-- Sekce s diagramy vedle sebe -->
         <section class="diagram-section">
-            <h2 style="color: #00ffff; text-align: center;">Diagramy</h2>
-            <div class="diagram-row">
-                <div class="diagram-item">
-                    <h3>Vývojový diagram</h3>
-                    <img src="{{ url_for('static', filename='Flow.png') }}" alt="Vývojový diagram" class="diagram-image">
-                </div>
-                <div class="diagram-item">
-                    <h3>ER diagram</h3>
-                    <img src="{{ url_for('static', filename='ERD.png') }}" alt="ER diagram" class="diagram-image">
-                </div>
+          <h2 style="color: #00ffff; text-align: center">Diagramy</h2>
+          <div class="diagram-row">
+            <div class="diagram-item">
+              <h3>Vývojový diagram</h3>
+              <img
+                src="{{ url_for('static', filename='Flow.png') }}"
+                alt="Vývojový diagram"
+                class="diagram-image"
+              />
             </div>
+            <div class="diagram-item">
+              <h3>ER diagram</h3>
+              <img
+                src="{{ url_for('static', filename='ERD.png') }}"
+                alt="ER diagram"
+                class="diagram-image"
+              />
+            </div>
+          </div>
         </section>
 
-        <!-- Popis hry -->
-        <section class="diagram-section">
-            <h2 style="color: #00ffff; text-align: center;">Popis hry</h2>
+        <!-- Dva sloupce: Popis hry + Jak spustit hru -->
+        <div class="split-layout">
+          <!-- Popis hry -->
+          <section class="diagram-section">
+            <h2 style="color: #00ffff; text-align: center">Popis hry</h2>
             <div class="game-description">
-                <h3>O hře</h3>
-                <p><strong>Projectile Combat</strong> je rychlá arénová střílečka zasazená do temného vesmírného prostředí. Hráč ovládá malou, ale obratnou loďku a musí čelit vlnám nepřátel, kteří se ho snaží zničit. Každá hra je jedinečná díky náhodně generovaným efektům projektilů a neustále se zvyšující obtížnosti.</p>
-                <h3>Cíl hry</h3>
-                <p>Přežijte co nejdéle! S každým dalším nepřítelem roste vaše skóre a odemykají se nové výzvy. Hra končí, když vám dojde zdraví – pak se všechny statistiky z této hry uloží a vy se můžete porovnat s ostatními hráči na webovém dashboardu.</p>
-                <h3>Ovládání</h3>
-                <ul>
-                    <li><strong>Pohyb:</strong> WASD – vlevo, vpravo, skok/létání (mezerník)</li>
-                    <li><strong>Létání:</strong> Podržte <strong>mezerník</strong> – spotřebovává výdrž (staminu). Na zemi se výdrž regeneruje.</li>
-                    <li><strong>Dash:</strong> Stiskněte <strong>CTRL</strong> + směr (A/D) – rychlý úskok s krátkou dobou nesmrtelnosti. Dash má cooldown.</li>
-                    <li><strong>Střelba:</strong> Levé tlačítko myši – vystřelí projektil směrem ke kurzoru. Střelba má krátké zpoždění (300 ms).</li>
-                </ul>
-                <h3>Projektily a jejich efekty</h3>
-                <p>Každý výstřel má náhodnou barvu, která určuje speciální efekt. Díky tomu je každá hra pokaždé jiná:</p>
-                <ul>
-                    <li><span style="color: #ff00ff;">Fialová (explosive)</span> – výbušný projektil, při zásahu poškodí i nepřátele v okolí.</li>
-                    <li><span style="color: #00ff00;">Zelená (dot)</span> – způsobuje poškození v čase (Damage over Time).</li>
-                    <li><span style="color: #ffffff;">Bílá (slow)</span> – zpomalí nepřítele na krátkou dobu.</li>
-                    <li><span style="color: #ff00ff;">Světle fialová (pierce)</span> – průrazný projektil, může zasáhnout více nepřátel za sebou.</li>
-                    <li><span style="color: #ffff00;">Žlutá (heal)</span> – při zásahu vás nepatrně vyléčí.</li>
-                    <li><span style="color: #ff0000;">Červená (explosive)</span> – další varianta výbušného efektu.</li>
-                </ul>
-                <h3>Nepřátelé</h3>
-                <p>Nepřátelé se spawnují v pravidelných intervalech po stranách obrazovky a pohybují se směrem k hráči. Jejich rychlost a životy se postupně zvyšují. Každý nepřítel po smrti vytvoří efekt částic a přičte se do statistiky „Zabito nepřátel“.</p>
-                <h3>Zdraví a výdrž</h3>
-                <ul>
-                    <li><strong>Zdraví:</strong> Ubývá při kontaktu s nepřítelem (maximálně jednou za 500 ms). Po pádu na nulu hra končí.</li>
-                    <li><strong>Výdrž (stamina):</strong> Spotřebovává se při létání. Na zemi se rychle regeneruje. Bez výdrže nelze létat.</li>
-                    <li><strong>Dash:</strong> Během dash jste nezranitelní. Cooldown dash je 1 vteřina.</li>
-                </ul>
-                <h3>Statistiky a ukládání</h3>
-                <p>Každá vaše hra je zaznamenána – vidíte datum, počet zabitých nepřátel, kolizí, výstřelů, zásahů a přesnost. Nejlepší výkony se ukládají do vašeho profilu a na webu si je můžete prohlížet a porovnávat s ostatními hráči. Admin má navíc přehled o všech uživatelích a jejich aktivitě.</p>
+              <h3>O hře</h3>
+              <p>
+                <strong>Projectile Combat</strong> je rychlá arénová střílečka
+                zasazená do temného vesmírného prostředí. Hráč ovládá malou, ale
+                obratnou loďku a musí čelit vlnám nepřátel, kteří se ho snaží
+                zničit. Každá hra je jedinečná díky náhodně generovaným efektům
+                projektilů a neustále se zvyšující obtížnosti.
+              </p>
+              <h3>Cíl hry</h3>
+              <p>
+                Přežijte co nejdéle! S každým dalším nepřítelem roste vaše skóre
+                a odemykají se nové výzvy. Hra končí, když vám dojde zdraví –
+                pak se všechny statistiky z této hry uloží a vy se můžete
+                porovnat s ostatními hráči na webovém dashboardu.
+              </p>
+              <h3>Ovládání</h3>
+              <ul>
+                <li>
+                  <strong>Pohyb:</strong> WASD – vlevo, vpravo, skok/létání
+                  (mezerník)
+                </li>
+                <li>
+                  <strong>Létání:</strong> Podržte <strong>mezerník</strong> –
+                  spotřebovává výdrž (staminu). Na zemi se výdrž regeneruje.
+                </li>
+                <li>
+                  <strong>Dash:</strong> Stiskněte <strong>CTRL</strong> + směr
+                  (A/D) – rychlý úskok s krátkou dobou nesmrtelnosti. Dash má
+                  cooldown.
+                </li>
+                <li>
+                  <strong>Střelba:</strong> Levé tlačítko myši – vystřelí
+                  projektil směrem ke kurzoru. Střelba má krátké zpoždění (300
+                  ms).
+                </li>
+              </ul>
+              <h3>Projektily a jejich efekty</h3>
+              <p>
+                Každý výstřel má náhodnou barvu, která určuje speciální efekt.
+                Díky tomu je každá hra pokaždé jiná:
+              </p>
+              <ul>
+                <li>
+                  <span style="color: #ff00ff">Fialová (explosive)</span> –
+                  výbušný projektil, při zásahu poškodí i nepřátele v okolí.
+                </li>
+                <li>
+                  <span style="color: #00ff00">Zelená (dot)</span> – způsobuje
+                  poškození v čase (Damage over Time).
+                </li>
+                <li>
+                  <span style="color: #ffffff">Bílá (slow)</span> – zpomalí
+                  nepřítele na krátkou dobu.
+                </li>
+                <li>
+                  <span style="color: #ff00ff">Světle fialová (pierce)</span> –
+                  průrazný projektil, může zasáhnout více nepřátel za sebou.
+                </li>
+                <li>
+                  <span style="color: #ffff00">Žlutá (heal)</span> – při zásahu
+                  vás nepatrně vyléčí.
+                </li>
+                <li>
+                  <span style="color: #ff0000">Červená (explosive)</span> –
+                  další varianta výbušného efektu.
+                </li>
+              </ul>
+              <h3>Nepřátelé</h3>
+              <p>
+                Nepřátelé se spawnují v pravidelných intervalech po stranách
+                obrazovky a pohybují se směrem k hráči. Jejich rychlost a životy
+                se postupně zvyšují. Každý nepřítel po smrti vytvoří efekt
+                částic a přičte se do statistiky „Zabito nepřátel“.
+              </p>
+              <h3>Zdraví a výdrž</h3>
+              <ul>
+                <li>
+                  <strong>Zdraví:</strong> Ubývá při kontaktu s nepřítelem
+                  (maximálně jednou za 500 ms). Po pádu na nulu hra končí.
+                </li>
+                <li>
+                  <strong>Výdrž (stamina):</strong> Spotřebovává se při létání.
+                  Na zemi se rychle regeneruje. Bez výdrže nelze létat.
+                </li>
+                <li>
+                  <strong>Dash:</strong> Během dash jste nezranitelní. Cooldown
+                  dash je 1 vteřina.
+                </li>
+              </ul>
+              <h3>Statistiky a ukládání</h3>
+              <p>
+                Každá vaše hra je zaznamenána – vidíte datum, počet zabitých
+                nepřátel, kolizí, výstřelů, zásahů a přesnost. Nejlepší výkony
+                se ukládají do vašeho profilu a na webu si je můžete prohlížet a
+                porovnávat s ostatními hráči. Admin má navíc přehled o všech
+                uživatelích a jejich aktivitě.
+              </p>
             </div>
-        </section>
-    </main>
+          </section>
 
-    <footer>
-        <p>&copy; 2025 Moje Hra. Všechna práva vyhrazena.</p>
-    </footer>
-</div>
-</body>
+          <!-- Jak spustit hru -->
+          <section class="diagram-section">
+            <h2 style="color: #00ffff; text-align: center">Jak spustit hru</h2>
+            <div class="game-description">
+              <h3>1. Co budete potřebovat</h3>
+              <ul>
+                <li>
+                  <strong>Python</strong> verze 3.8 nebo novější –
+                  <a
+                    href="https://www.python.org/downloads/"
+                    target="_blank"
+                    style="color: #ff00ff"
+                    >stáhnout zde</a
+                  >
+                </li>
+                <li>
+                  <strong>Příkazový řádek / terminál</strong> (na Windows cmd,
+                  PowerShell, na Mac/Linux terminál)
+                </li>
+              </ul>
+
+              <h3>2. Instalace knihoven</h3>
+              <p>Otevřete terminál ve složce projektu a spusťte:</p>
+              <pre
+                style="
+                  background: #0d0b1a;
+                  padding: 15px;
+                  border-radius: 10px;
+                  border: 1px solid #00ffff;
+                  overflow-x: auto;
+                "
+              ><code>pip install pygame flask flask-sqlalchemy flask-bcrypt flask-login requests</code></pre>
+              <p>
+                Tento příkaz nainstaluje herní engine Pygame, webový framework
+                Flask a další potřebné knihovny.
+              </p>
+
+              <h3>3. Spuštění serveru (pro ukládání do databáze)</h3>
+              <p>
+                Hra ukládá statistiky do databáze přes webové API. Nejprve
+                spusťte Flask server:
+              </p>
+              <pre
+                style="
+                  background: #0d0b1a;
+                  padding: 15px;
+                  border-radius: 10px;
+                  border: 1px solid #00ffff;
+                "
+              ><code>python web/stranka/app.py</code></pre>
+              <p>
+                Server poběží na adrese <strong>http://127.0.0.1:5000</strong>.
+                Ponechte toto okno terminálu otevřené.
+              </p>
+              <p>
+                <em
+                  >Server vytvoří databázi, tabulky a výchozího administrátora
+                  (admin@example.com / admin123).</em
+                >
+              </p>
+
+              <h3>4. Spuštění hry</h3>
+              <p>
+                Otevřete <strong>druhý terminál</strong> (nové okno) ve stejné
+                složce a spusťte:
+              </p>
+              <pre
+                style="
+                  background: #0d0b1a;
+                  padding: 15px;
+                  border-radius: 10px;
+                  border: 1px solid #00ffff;
+                "
+              ><code>python menu.py</code></pre>
+              <p>Objeví se herní okno s úvodní obrazovkou.</p>
+              <p>
+                <strong>Bez serveru:</strong> Pokud server neběží, hra se
+                normálně spustí, ale statistiky se ukládají pouze do lokálního
+                souboru <code>game_stats.json</code>.
+              </p>
+
+              <h3>5. Přístup na web</h3>
+              <p>Otevřete prohlížeč a přejděte na:</p>
+              <pre
+                style="
+                  background: #0d0b1a;
+                  padding: 15px;
+                  border-radius: 10px;
+                  border: 1px solid #00ffff;
+                "
+              ><code>http://127.0.0.1:5000</code></pre>
+              <p>Zde můžete:</p>
+              <ul>
+                <li>Registrovat nový účet</li>
+                <li>Přihlásit se</li>
+                <li>Prohlížet všechny herní session ostatních hráčů</li>
+                <li>Jako admin mazat uživatele</li>
+                <li>Prohlížet diagramy a popis hry</li>
+              </ul>
+
+              <h3>6. Import starých dat z JSON (volitelné)</h3>
+              <p>
+                Pokud jste hráli dříve bez serveru a chcete staré záznamy nahrát
+                do databáze, spusťte:
+              </p>
+              <pre
+                style="
+                  background: #0d0b1a;
+                  padding: 15px;
+                  border-radius: 10px;
+                  border: 1px solid #00ffff;
+                "
+              ><code>python import_json_to_db.py</code></pre>
+              <p>
+                Skript načte soubor <code>game_stats.json</code> a odešle
+                všechny záznamy na API. Při startu serveru se tento import
+                provede automaticky a soubor se přejmenuje na
+                <code>game_stats.json.imported</code>.
+              </p>
+
+              <h3>7. Časté problémy</h3>
+              <ul>
+                <li>
+                  <strong>„pip není rozpoznán“</strong> – použijte
+                  <code>python -m pip install ...</code> nebo přeinstalujte
+                  Python s možností „Add Python to PATH“.
+                </li>
+                <li>
+                  <strong>Port 5000 je obsazený</strong> – v
+                  <code>app.py</code> změňte <code>app.run(debug=True)</code> na
+                  <code>app.run(debug=True, port=5001)</code> a upravte i
+                  <code>base_url</code> v <code>states.py</code>.
+                </li>
+                <li>
+                  <strong>Herní okno se neotevře</strong> – zkontrolujte
+                  instalaci Pygame (<code>pip install pygame</code>).
+                </li>
+              </ul>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer>
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>Projectile Combat</h4>
+            <p>&copy; 2026-<span id="current-year"></span> Ondřej Novotný</p>
+            <p>Všechna práva vyhrazena.</p>
+          </div>
+          <div class="footer-section">
+            <h4>Odkazy</h4>
+            <ul>
+              <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+              <li><a href="{{ url_for('diagrams') }}">Diagramy</a></li>
+              <li>
+                <a
+                  href="https://github.com/Ondrej06/marutita_projekt.git"
+                  target="_blank"
+                  >GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Kontakt</h4>
+            <p>
+              <a href="mailto:novotnyo@spskladno.cz">novotnyo@spskladno.cz</a>
+            </p>
+            <p>Školní projekt 2025</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>Vytvořeno s ❤️ pro maturitní práci</p>
+        </div>
+      </footer>
+    </div>
+  </body>
 </html>

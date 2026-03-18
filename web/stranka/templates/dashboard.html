@@ -109,8 +109,8 @@
                         {% for session, user in sessions %}
                         <tr>
                             <td data-label="Uživatel">{{ user.username }}</td>
-                            <td data-label="Datum a čas" data-sort-value="{{ session.timestamp.timestamp() }}">
-                                {{ session.timestamp.strftime("%d.%m.%Y %H:%M") }}
+                            <td data-label="Datum a čas" data-sort-value="{{ session.timestamp.timestamp() if session.timestamp else 0 }}">
+                                {{ session.timestamp.strftime("%d.%m.%Y %H:%M") if session.timestamp else "—" }}
                             </td>
                             <td data-label="Zabito nepřátel">{{ session.enemies_killed }}</td>
                             <td data-label="Kolize">{{ session.player_collisions }}</td>
@@ -158,8 +158,8 @@
                         {% for session, user in sessions %}
                         <tr>
                             <td data-label="Uživatel">{{ user.username }}</td>
-                            <td data-label="Datum a čas" data-sort-value="{{ session.timestamp.timestamp() }}">
-                                {{ session.timestamp.strftime("%d.%m.%Y %H:%M") }}
+                            <td data-label="Datum a čas" data-sort-value="{{ session.timestamp.timestamp() if session.timestamp else 0 }}">
+                                {{ session.timestamp.strftime("%d.%m.%Y %H:%M") if session.timestamp else "—" }}
                             </td>
                             <td data-label="Zabito nepřátel">{{ session.enemies_killed }}</td>
                             <td data-label="Kolize">{{ session.player_collisions }}</td>
@@ -216,6 +216,25 @@
                                 {{ minutes }}:{{ '%02d' % seconds }}
                             </p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Achievementy -->
+                <div class="player-stats" style="margin-top: 20px;">
+                    <h3>Achievementy</h3>
+                    <div class="stats-blocks">
+                        {% for ach in achievements %}
+                        {% set unlocked = current_user.user_achievements | selectattr('achievement_id', 'equalto', ach.id) | list %}
+                        <div class="stat-block{% if unlocked %} unlocked{% else %} locked{% endif %}">
+                            <h4>{{ ach.icon }} {{ ach.name }}</h4>
+                            <p style="font-size: 0.85rem; color: #ccc;">{{ ach.description }}</p>
+                            {% if unlocked %}
+                                <p style="color: #00ffff; font-size: 0.8rem;">✅ Odemčeno</p>
+                            {% else %}
+                                <p style="color: #666; font-size: 0.8rem;">🔒 Zamčeno</p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -284,10 +303,39 @@
     {% endif %}
 
     <!-- FOOTER -->
-    <footer>
-        <p>&copy; 2025 Moje Hra. Všechna práva vyhrazena.</p>
-        <p><a href="#">Ochrana osobních údajů</a> | <a href="#">Podmínky použití</a></p>
-    </footer>
+      <footer>
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>Projectile Combat</h4>
+            <p>&copy; 2026-<span id="current-year"></span> Ondřej Novotný</p>
+            <p>Všechna práva vyhrazena.</p>
+          </div>
+          <div class="footer-section">
+            <h4>Odkazy</h4>
+            <ul>
+              <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+              <li><a href="{{ url_for('diagrams') }}">Diagramy</a></li>
+              <li>
+                <a
+                  href="https://github.com/Ondrej06/marutita_projekt.git"
+                  target="_blank"
+                  >GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Kontakt</h4>
+            <p>
+              <a href="mailto:novotnyo@spskladno.cz">novotnyo@spskladno.cz</a>
+            </p>
+            <p>Školní projekt 2025</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>Vytvořeno s ❤️ pro maturitní práci</p>
+        </div>
+      </footer>
 </div>
 
 <!-- SCRIPT PRO ŘAZENÍ TABULEK -->
