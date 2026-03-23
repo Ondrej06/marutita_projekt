@@ -53,7 +53,7 @@ class IntroState(BaseState):
         self.timer = 0.0
         self.hyperspace = False
         self.hyperspace_timer = 0.0
-        self.title = "Bubble Shot"
+        self.title = "Bubble Shooter"
 
     def enter(self, payload=None):
         """Resetuje všechny timery při každém vstupu."""

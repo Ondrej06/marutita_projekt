@@ -562,12 +562,284 @@
             </table>
           </div>
         </section>
+
+        <!-- ══════════════════════════════════════════
+             SEKCE: PRO NOVÉHO SPOLUPRACOVNÍKA
+        ══════════════════════════════════════════ -->
+        <section class="diagram-section">
+          <h2 style="color:#00ffff;text-align:center">👩‍💻 Pro nového spolupracovníka</h2>
+          <div class="game-description">
+
+            <h3>Co to je a jak to funguje</h3>
+            <p>
+              Bubble Shooter je dvouvrstvý projekt: <strong>Pygame hra</strong> (klient)
+              a <strong>Flask webový server</strong> (backend). Komunikují přes lokální REST API.
+              Databáze je SQLite soubor <code>instance/users.db</code>, který Flask vytvoří
+              automaticky při prvním startu.
+            </p>
+
+            <h3>Jak nastavit vývojové prostředí</h3>
+            <pre style="background:#0d0b1a;padding:15px;border-radius:10px;border:1px solid #00ffff;overflow-x:auto"><code># 1. Klonování repozitáře
+git clone https://github.com/Ondrej06/marutita_projekt.git
+cd marutita_projekt
+
+# 2. Instalace závislostí
+pip install pygame flask flask-sqlalchemy flask-bcrypt flask-login requests
+
+# 3. Spuštění serveru (terminál 1)
+python app.py
+
+# 4. Seed testovacích dat (terminál 2, jednorázově)
+python seed_test_data.py
+
+# 5. Spuštění hry (terminál 2)
+python menu.py</code></pre>
+
+            <h3>Architektura — State Machine</h3>
+            <p>
+              Hra používá návrhový vzor <strong>State Machine</strong>. Každá obrazovka
+              (Intro, MainMenu, Login, Playing…) je samostatná třída dědící z
+              <code>BaseState</code>. Přechody řídí <code>StateManager</code> v
+              <code>menu.py</code> — zavolá <code>exit()</code> na starém stavu a
+              <code>enter()</code> na novém.
+            </p>
+
+            <h3>Kde co najdu</h3>
+            <table style="min-width:0;width:100%">
+              <thead><tr><th>Chci změnit…</th><th>Soubor</th></tr></thead>
+              <tbody>
+                <tr><td>Herní fyziku, rychlosti, životy</td><td><code>config.py</code> — třída GameConfig</td></tr>
+                <tr><td>Vzhled menu, tlačítka, intro</td><td><code>states_menu.py</code></td></tr>
+                <tr><td>Herní logiku, kolize, spawning</td><td><code>states_game.py</code></td></tr>
+                <tr><td>Chování hráče (dash, létání)</td><td><code>player.py</code></td></tr>
+                <tr><td>Typy efektů projektilů</td><td><code>utils.py</code> — mapa <code>effect_map</code></td></tr>
+                <tr><td>REST API endpointy, DB modely</td><td><code>app.py</code></td></tr>
+                <tr><td>HTML šablony dashboardu</td><td><code>web/stranka/templates/</code></td></tr>
+                <tr><td>CSS styly webu</td><td><code>web/stranka/static/style.css</code></td></tr>
+                <tr><td>Barvy a fonty</td><td><code>visuals.py</code></td></tr>
+              </tbody>
+            </table>
+
+            <h3>Jak přidat nový typ projektilu</h3>
+            <ol style="margin-left:16px;color:#ccc;font-size:0.9rem">
+              <li>Přidejte barvu do <code>GameConfig.PROJECTILE_COLORS</code> v <code>config.py</code></li>
+              <li>Přidejte barvu do <code>Colors</code> v <code>visuals.py</code></li>
+              <li>Přidejte mapování <code>barva → "efekt_id"</code> do <code>effect_map</code> v <code>utils.py</code></li>
+              <li>Ošetřete efekt v sekci <em>Speciální efekty</em> v metodě <code>update()</code> v <code>states_game.py</code></li>
+            </ol>
+
+            <h3>Konvence a standardy</h3>
+            <ul>
+              <li>Dokumentace kódu: docstringy ve formátu Google Style (Args / Returns / Attributes)</li>
+              <li>Každý modul má hlavičkový komentář s popisem účelu</li>
+              <li>Konstanty patří do <code>config.py</code> — žádná magic čísla v logice</li>
+              <li>HTTP požadavky z Pygame běží v <code>Thread</code> — nikdy neblokují herní smyčku</li>
+              <li>Commity pushujte na Git před každou větší změnou</li>
+            </ul>
+
+            <h3>Spuštění SQL skriptů</h3>
+            <pre style="background:#0d0b1a;padding:15px;border-radius:10px;border:1px solid #00ffff;overflow-x:auto"><code>python run_sql.py sql/create.sql        # DDL – vytvoření tabulek
+python run_sql.py sql/insert.sql        # Ukázková data (SQL demo)
+python run_sql.py sql/select.sql        # SELECT dotazy
+python run_sql.py sql/update_delete.sql # UPDATE a DELETE</code></pre>
+
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+             SEKCE: PRO INVESTORA
+        ══════════════════════════════════════════ -->
+        <section class="diagram-section">
+          <h2 style="color:#00ffff;text-align:center">💼 Pro investora</h2>
+          <div class="game-description">
+
+            <h3>Co projekt řeší</h3>
+            <p>
+              Bubble Shooter propojuje zábavní hru s datovou platformou. Každá odehraná partie
+              se automaticky zaznamenává, statistiky se ukládají do databáze a jsou okamžitě
+              dostupné přes webový dashboard — hráči vidí svůj progres, admini mají přehled
+              o celé platformě.
+            </p>
+
+            <h3>Technologický základ</h3>
+            <div class="stats-blocks" style="margin:12px 0">
+              <div class="stat-block">
+                <h4>Herní engine</h4>
+                <p style="font-size:1rem">Pygame</p>
+                <p style="font-size:0.8rem;color:#aaa">Nativní výkon, 144 FPS</p>
+              </div>
+              <div class="stat-block">
+                <h4>Backend</h4>
+                <p style="font-size:1rem">Flask + SQLite</p>
+                <p style="font-size:0.8rem;color:#aaa">REST API, ORM, bcrypt</p>
+              </div>
+              <div class="stat-block">
+                <h4>Bezpečnost</h4>
+                <p style="font-size:1rem">Bcrypt + Sessions</p>
+                <p style="font-size:0.8rem;color:#aaa">Hashovaná hesla, role</p>
+              </div>
+              <div class="stat-block">
+                <h4>Datová vrstva</h4>
+                <p style="font-size:1rem">SQLAlchemy ORM</p>
+                <p style="font-size:0.8rem;color:#aaa">1:N, M:N, CASCADE</p>
+              </div>
+              <div class="stat-block">
+                <h4>Souběžnost</h4>
+                <p style="font-size:1rem">Python Thread</p>
+                <p style="font-size:0.8rem;color:#aaa">Neblokující odesílání dat</p>
+              </div>
+              <div class="stat-block">
+                <h4>Frontend</h4>
+                <p style="font-size:1rem">HTML / CSS / JS</p>
+                <p style="font-size:0.8rem;color:#aaa">Responzivní, dark theme</p>
+              </div>
+            </div>
+
+            <h3>Klíčové vlastnosti platformy</h3>
+            <ul>
+              <li><strong>Uživatelské účty</strong> — registrace, přihlášení, role (hráč / admin)</li>
+              <li><strong>Automatický sběr dat</strong> — přesnost střelby, čas hraní, počet nepřátel, kolize</li>
+              <li><strong>Achievement systém</strong> — M:N vztah User ↔ Achievement, automatické odemykání</li>
+              <li><strong>Offline odolnost</strong> — při nedostupnosti serveru se statistiky ukládají lokálně a importují po připojení</li>
+              <li><strong>Admin rozhraní</strong> — přehled všech uživatelů a session, mazání účtů</li>
+              <li><strong>Škálovatelná architektura</strong> — SQLite lze vyměnit za PostgreSQL změnou jednoho řádku v konfiguraci</li>
+            </ul>
+
+            <h3>Možnosti dalšího rozvoje</h3>
+            <ul>
+              <li>Nahrazení SQLite za PostgreSQL pro produkční nasazení s více uživateli</li>
+              <li>Přidání globálního žebříčku a sezónních turnajů</li>
+              <li>Monetizace přes prémiové kosmetické prvky (skiny projektilů, pozadí)</li>
+              <li>Mobilní port pomocí Pygame CE nebo přepsání do Godot/Unity</li>
+              <li>API rozšíření pro analytický dashboard (grafy, trendy, retence)</li>
+              <li>Cloudové nasazení (Railway, Render, AWS) pro globální dostupnost</li>
+            </ul>
+
+            <h3>Shrnutí</h3>
+            <p>
+              Projekt demonstruje schopnost navrhnout, implementovat a propojit tři nezávislé
+              vrstvy — herní engine, webový backend a databázi — do funkčního celku s čistou
+              architekturou, bezpečnou autentizací a připraveným datovým modelem.
+              Technologický základ je průmyslový standard s minimálními náklady na provoz.
+            </p>
+
+          </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+             SEKCE: MANUÁL PRO UŽIVATELE
+        ══════════════════════════════════════════ -->
+        <section class="diagram-section">
+          <h2 style="color:#00ffff;text-align:center">📖 Manuál pro uživatele</h2>
+          <div class="split-layout">
+
+            <!-- Levá část: Základy -->
+            <div class="game-description">
+              <h3>Registrace a přihlášení</h3>
+              <ol style="margin-left:16px;color:#ccc;font-size:0.9rem;line-height:2">
+                <li>Klikněte na <strong>Účet ▼ → Registrovat</strong> v pravém horním rohu</li>
+                <li>Zadejte uživatelské jméno, e-mail a heslo</li>
+                <li>Po registraci se přihlaste přes <strong>Účet ▼ → Přihlásit se</strong></li>
+                <li>V herním okně zvolte <strong>Login</strong> v hlavním menu a přihlaste se stejnými údaji</li>
+              </ol>
+              <p style="margin-top:8px;color:#aaa;font-size:0.85rem">
+                ⚠ Přihlaste se v herním okně <em>před</em> spuštěním hry — jinak se statistiky neuloží do vašeho profilu.
+              </p>
+
+              <h3>Ovládání hry</h3>
+              <table style="min-width:0;width:100%;margin-top:8px">
+                <thead><tr><th>Klávesa / Tlačítko</th><th>Akce</th></tr></thead>
+                <tbody>
+                  <tr><td><kbd style="background:#222;padding:2px 7px;border-radius:4px;border:1px solid #555">A</kbd> / <kbd style="background:#222;padding:2px 7px;border-radius:4px;border:1px solid #555">D</kbd></td><td>Pohyb doleva / doprava</td></tr>
+                  <tr><td><kbd style="background:#222;padding:2px 7px;border-radius:4px;border:1px solid #555">Mezerník</kbd></td><td>Létání — spotřebovává staminu (modrý bar)</td></tr>
+                  <tr><td><kbd style="background:#222;padding:2px 7px;border-radius:4px;border:1px solid #555">CTRL</kbd> + <kbd style="background:#222;padding:2px 7px;border-radius:4px;border:1px solid #555">A/D</kbd></td><td>Dash — rychlý úskok, cooldown 1 s</td></tr>
+                  <tr><td>Levé tlačítko myši</td><td>Výstřel směrem ke kurzoru</td></tr>
+                  <tr><td><kbd style="background:#222;padding:2px 7px;border-radius:4px;border:1px solid #555">ESC</kbd></td><td>Návrat do menu (uloží statistiky)</td></tr>
+                  <tr><td><kbd style="background:#222;padding:2px 7px;border-radius:4px;border:1px solid #555">F1</kbd></td><td>Zobrazit / skrýt FPS čítač</td></tr>
+                  <tr><td><kbd style="background:#222;padding:2px 7px;border-radius:4px;border:1px solid #555">R</kbd></td><td>Restart po Game Over</td></tr>
+                </tbody>
+              </table>
+
+              <h3>HUD — co vidíte na obrazovce</h3>
+              <ul>
+                <li><strong style="color:#00ff00">Zelený bar</strong> (nahoře vlevo) — zdraví. Při &lt;30 % zčervená.</li>
+                <li><strong style="color:#00b0ff">Modrý bar</strong> (pod zdravím) — stamina pro létání. Regeneruje se na zemi.</li>
+                <li><strong>Kruh D</strong> (vlevo) — cooldown dashe. Zelený = připraven, číslo = zbývající sekundy.</li>
+                <li><strong>Statistiky</strong> (vpravo nahoře) — kills, přesnost, výstřely, zásahy, čas.</li>
+              </ul>
+            </div>
+
+            <!-- Pravá část: Tipy a projektily -->
+            <div class="game-description">
+              <h3>Typy projektilů a jejich efekty</h3>
+              <p>Barva každého výstřelu je náhodná a určuje speciální efekt:</p>
+              <table style="min-width:0;width:100%;margin-top:8px">
+                <thead><tr><th>Barva</th><th>Efekt</th><th>Tip</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><span style="color:#fe00f6;font-weight:700">● Fialová</span></td>
+                    <td>Pierce — průrazný, zasáhne více nepřátel</td>
+                    <td>Ideální do skupiny nepřátel za sebou</td>
+                  </tr>
+                  <tr>
+                    <td><span style="color:#0bff01;font-weight:700">● Zelená</span></td>
+                    <td>DoT — poškození v čase (2 s)</td>
+                    <td>Střelte a odskočte, nepřítel umírá sám</td>
+                  </tr>
+                  <tr>
+                    <td><span style="color:#fff;font-weight:700">● Bílá</span></td>
+                    <td>Slow — zpomalí nepřítele na 1,5 s</td>
+                    <td>Použijte k úniku, když vás obkličují</td>
+                  </tr>
+                  <tr>
+                    <td><span style="color:#fe0000;font-weight:700">● Červená</span></td>
+                    <td>Explosive — výbuch, AoE poškození 50 px</td>
+                    <td>Nejsilnější na skupiny, mějte přesnost</td>
+                  </tr>
+                  <tr>
+                    <td><span style="color:#fdfe02;font-weight:700">● Žlutá</span></td>
+                    <td>Heal — při zásahu nepřítele vás vyléčí</td>
+                    <td>Prioritizujte při nízkém zdraví</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h3>Tipy pro přežití</h3>
+              <ul>
+                <li>🛡 <strong>Dash = nezranitelnost</strong> — použijte CTRL+A/D ve chvíli, kdy se nepřítel chystá zasáhnout</li>
+                <li>✈ <strong>Létejte úsporně</strong> — stamina se regeneruje pouze na zemi; pokud přijdete o staminu ve vzduchu, padnete</li>
+                <li>🎯 <strong>Míření s nadhledem</strong> — projektily mají gravitaci, na dálku míříte mírně nad cíl</li>
+                <li>💛 <strong>Žlutá = záchrana</strong> — pokud je zdraví pod 30 %, zaměřte se na žluté projektily</li>
+                <li>📏 <strong>Udržujte vzdálenost</strong> — kolize ubírá 15 HP každých 500 ms, nepřátelé jsou nebezpeční zblízka</li>
+                <li>🏃 <strong>Pohybujte se</strong> — stojící hráč je snadný cíl, střílejte za pohybu</li>
+              </ul>
+
+              <h3>Achievementy</h3>
+              <table style="min-width:0;width:100%">
+                <thead><tr><th>Achievement</th><th>Podmínka</th></tr></thead>
+                <tbody>
+                  <tr><td>🩸 První krev</td><td>Zabijte prvního nepřítele</td></tr>
+                  <tr><td>🎯 Ostrostřelec</td><td>Dosáhněte přesnosti nad 80 % v jedné hře</td></tr>
+                  <tr><td>🛡 Nezranitelný</td><td>Dokončete hru bez jediné kolize s alespoň 5 kills</td></tr>
+                </tbody>
+              </table>
+              <p style="margin-top:10px;color:#aaa;font-size:0.85rem">
+                Achievementy se odemykají automaticky po skončení hry — zkontrolujte je v dashboardu.
+              </p>
+
+              <h3>Nastavení</h3>
+              <p>V hlavním menu zvolte <strong>Settings → Graphics</strong> pro změnu rozlišení okna (1920×1080 nebo 800×800). Změna se projeví po restartu hry.</p>
+            </div>
+
+          </div>
+        </section>
+
       </main>
 
       <footer>
         <div class="footer-content">
           <div class="footer-section">
-            <h4>Projectile Combat</h4>
+            <h4>Bubble Shooter</h4>
             <p>&copy; 2026 Ondřej Novotný</p>
             <p>Všechna práva vyhrazena.</p>
           </div>

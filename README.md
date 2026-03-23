@@ -1,4 +1,5 @@
-# Projectile Combat
+
+# Bubble Shooter
 
 2D arénová střílečka v Pygame propojená s webovým dashboardem na Flask.
 
@@ -38,7 +39,7 @@ pip install pygame flask flask-sqlalchemy flask-bcrypt flask-login requests
 Server je nutný pro ukládání statistik do databáze a pro přístup na web.
 
 ```bash
-python web/stranka/app.py
+python app.py
 ```
 
 Po spuštění uvidíte:
@@ -47,7 +48,7 @@ Po spuštění uvidíte:
  * Running on http://127.0.0.1:5000
 ```
 
-Nechte tento terminál otevřený. Server vytvoří databázi `web/stranka/instance/users.db` a výchozího administrátora:
+Nechte tento terminál otevřený. Server vytvoří databázi `instance/users.db` a výchozího administrátora:
 
 * **Email:** admin@example.com
 * **Heslo:** admin123
@@ -88,21 +89,18 @@ marutita_projekt/
 ├── instance/                   # Vytvoří Flask automaticky (users.db)
 ├── sql/
 │   ├── create.sql              # DDL — vytvoření tabulek
-│   ├── insert.sql              # Vzorová data
+│   ├── insert.sql              # Vzorová data (SQL ukázka, placeholder hesla)
 │   ├── select.sql              # Ukázkové SELECT dotazy (JOIN, GROUP BY, filtrace)
 │   └── update_delete.sql       # UPDATE a DELETE příkazy
 ├── web/
 │   └── stranka/
 │       ├── static/
-│       │   ├── ERD.png         # ER diagram databáze
-│       │   ├── Flow.png        # Vývojový diagram
 │       │   └── style.css       # Styly webových stránek
-│       ├── templates/
-│       │   ├── dashboard.html  # Šablona dashboardu
-│       │   ├── diagrams.html   # Šablona stránky s diagramy
-│       │   ├── login.html      # Šablona přihlášení
-│       │   └── register.html   # Šablona registrace
-│       └── app.py              # Flask server — REST API, webové stránky, modely DB
+│       └── templates/
+│           ├── dashboard.html  # Šablona dashboardu
+│           ├── diagrams.html   # Šablona stránky s diagramy
+│           ├── login.html      # Šablona přihlášení
+│           └── register.html   # Šablona registrace
 ├── app.py                      # Flask server — REST API, webové stránky, modely DB
 ├── menu.py                     # Hlavní vstupní bod — Pygame smyčka, StateManager
 ├── states.py                   # BaseState, ButtonMenuState, GameState enum
@@ -117,11 +115,12 @@ marutita_projekt/
 ├── visuals.py                  # Colors, FontCache, hvězdné pozadí
 ├── config.py                   # GameConfig a MenuConfig — všechny konstanty
 ├── settings.py                 # Načítání/ukládání config.json, cesty k souborům
+├── seed_test_data.py           # Vytvoření testovacích uživatelů s bcrypt hesly
 ├── import_jsonDB.py            # Ruční import game_stats.json do databáze
 ├── run_sql.py                  # Nástroj pro spuštění SQL skriptů na databázi
 ├── game_stats.json             # Záložní statistiky (když server neběží)
 ├── config.json                 # Uživatelské nastavení (rozlišení, poslední uživatel)
-└── dokumentace.docx            # Projektová dokumentace
+└── Dokument.docx               # Projektová dokumentace
 ```
 
 ---
@@ -132,12 +131,24 @@ SQL skripty se spouštějí z kořenové složky projektu nástrojem `run_sql.py
 
 ```bash
 python run_sql.py sql/create.sql        # Vytvoří tabulky
-python run_sql.py sql/insert.sql        # Vloží vzorová data
+python run_sql.py sql/insert.sql        # Vloží vzorová data (SQL ukázka)
 python run_sql.py sql/select.sql        # Ukázkové SELECT dotazy
 python run_sql.py sql/update_delete.sql # UPDATE a DELETE příkazy
 ```
 
-> Databáze musí existovat — nejprve spusťte `python web/stranka/app.py`.
+> Databáze musí existovat — nejprve spusťte `python app.py`.
+
+### Testovací uživatelé s funkčním přihlášením
+
+`insert.sql` obsahuje placeholder hesla (čistě pro SQL demonstraci).
+
+Pro funkční testovací účty spusťte:
+
+```bash
+python seed_test_data.py
+```
+
+Vytvoří uživatele  **emil** ,  **gragas** , **garen** s heslem `password123`.
 
 ---
 
@@ -166,19 +177,20 @@ Na stránce **Diagramy** (dostupné z dashboardu) naleznete:
 
 ## Autor
 
-**Ondřej Novotný** — maturitní práce 2026/2027
+**Ondřej Novotný** — maturitní práce 2025/2026
 
 ---
 
 ## Časté problémy
 
-| Problém                        | Řešení                                                                                                 |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `pip `není rozpoznán        | Použijte `python -m pip install ...`nebo přeinstalujte Python s volbou „Add Python to PATH"          |
-| Port 5000 je obsazený          | V `web/stranka/app.py`změňte na `app.run(port=5001)`, v `states_game.py`upravte `self.base_url` |
-| Hra se nespouští              | Ověřte:`pip install pygame`. Při problémech zkuste `pip install pygame==2.0.3`                    |
-| Statistiky se neukládají      | Zkontrolujte, zda běží server (`python web/stranka/app.py`); záloha jde do `game_stats.json`      |
-| Import JSON selže              | Spusťte ručně:`python import_jsonDB.py`                                                              |
-| `run_sql.py`nenajde databázi | Nejprve spusťte server, který databázi vytvoří                                                       |
+| Problém                          | Řešení                                                                                        |
+| --------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `pip`není rozpoznán           | Použijte `python -m pip install ...`nebo přeinstalujte Python s volbou „Add Python to PATH" |
+| Port 5000 je obsazený            | V `app.py`změňte na `app.run(port=5001)`, v `states_game.py`upravte `self.base_url`    |
+| Hra se nespouští                | Ověřte:`pip install pygame`. Při problémech zkuste `pip install pygame==2.0.3`           |
+| Statistiky se neukládají        | Zkontrolujte, zda běží server (`python app.py`); záloha jde do `game_stats.json`         |
+| Import JSON selže                | Spusťte ručně:`python import_jsonDB.py`                                                     |
+| `run_sql.py`nenajde databázi   | Nejprve spusťte server, který databázi vytvoří                                              |
+| Testovací uživatelé nefungují | Spusťte `python seed_test_data.py`místo `insert.sql`pro funkční bcrypt hesla             |
 
 ---
