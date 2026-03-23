@@ -256,7 +256,7 @@ def main() -> None:
     MenuConfig.MENU_SCREEN_WIDTH  = width
     MenuConfig.MENU_SCREEN_HEIGHT = height
     screen = pygame.display.set_mode((width, height))
-    pygame.display.set_caption("Menu")
+    pygame.display.set_caption("Bubble Shooter")
     clock = pygame.time.Clock()
 
     # Statické pozadí (gradient + mlhoviny) — generuje se jednou
