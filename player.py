@@ -8,6 +8,8 @@ Podporuje horizontální pohyb, létání (gravitace + stamina),
 dash s vizuální stopou, knockback při zásahu a dobu nezranitelnosti.
 """
 
+import math
+
 import pygame
 from config import GameConfig
 from visuals import Colors
@@ -210,18 +212,57 @@ class Player:
 
     def draw(self, screen: pygame.Surface) -> None:
         """
-        Vykreslí hráče jako kruh na aktuální pozici.
-
-        Args:
-            screen: Pygame povrch, na který se kreslí.
+        Vykreslí hráče jako energetický kruh s vnitřním prstencem a pulzujícím jádrem.
         """
-        pygame.draw.circle(
-            screen,
-            Colors.PLAYER_DEFAULT,
-            (int(self.pos.x), int(self.pos.y)),
-            self.radius
-        )
+        center = (int(self.pos.x), int(self.pos.y))
+        r = self.radius
 
+        # 1. Základní vnější záře (použijeme průhledný surface)
+        glow_radius = r + 4
+        glow_surf = pygame.Surface((glow_radius*2, glow_radius*2), pygame.SRCALPHA)
+        # Vnější záře – světle modrá s nízkou alfa
+        glow_color = (100, 150, 255, 50)
+        pygame.draw.circle(glow_surf, glow_color, (glow_radius, glow_radius), glow_radius)
+        screen.blit(glow_surf, (center[0] - glow_radius, center[1] - glow_radius))
+
+        # 2. Hlavní tělo – tmavší odstín s průhledností pro podklad
+        body_color = (30, 40, 80)  # tmavě modrá
+        pygame.draw.circle(screen, body_color, center, r)
+
+        # 3. Vnitřní prstenec (kruhová výseč)
+        ring_radius = r - 3
+        ring_width = 3
+        # Barva prstence – světle modrá
+        ring_color = (80, 180, 255)
+        pygame.draw.circle(screen, ring_color, center, ring_radius, ring_width)
+
+        # 4. Pulzující jádro – velikost se mění v čase (např. podle pygame.time.get_ticks())
+        # Pro jednoduchost použijeme časové proměnné, které byste měli inicializovat ve třídě
+        # (např. self.last_time = pygame.time.get_ticks())
+        if not hasattr(self, 'last_time'):
+            self.last_time = pygame.time.get_ticks()
+            self.pulse_phase = 0
+
+        current_time = pygame.time.get_ticks()
+        dt = current_time - self.last_time
+        self.last_time = current_time
+        self.pulse_phase += dt * 0.005  # rychlost pulzování
+        # Velikost jádra se mění sinusově mezi 0.4 a 0.8 poloměru
+        core_radius = int(r * (0.6 + 0.2 * (1 + math.sin(self.pulse_phase)) / 2))
+
+        # Středové jádro – světlé, zářivé
+        core_color = (200, 220, 255)
+        pygame.draw.circle(screen, core_color, center, core_radius)
+
+        # 5. Dodatečný lesklý bod (odlesk)
+        highlight_radius = max(1, r // 6)
+        highlight_offset = r // 3
+        highlight_pos = (center[0] - highlight_offset, center[1] - highlight_offset)
+        pygame.draw.circle(screen, (255, 255, 255), highlight_pos, highlight_radius)
+
+        # 6. Obrys pro kontrast
+        outline_color = (200, 200, 255)
+        pygame.draw.circle(screen, outline_color, center, r, width=1)
     def draw_dash_trail(self, screen: pygame.Surface) -> None:
         """
         Vykreslí průhledné kruhy tvořící stopu za dashem.

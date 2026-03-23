@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Herní statistiky</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="static\kulicka.png">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -135,11 +135,46 @@
             </div>
         </div>
 
+        <!-- Achievementy — přehled všech hráčů -->
+        <div class="admin-table">
+            <h2>Achievementy hráčů</h2>
+            <div class="admin-table-container">
+                <table class="sortable">
+                    <thead>
+                        <tr>
+                            <th data-sort="string">Hráč</th>
+                            {% for ach in achievements %}
+                            <th data-sort="string">{{ ach.icon }} {{ ach.name }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td data-label="Hráč">{{ user.username }}</td>
+                            {% for ach in achievements %}
+                            {% set unlocked = user.user_achievements | selectattr('achievement_id', 'equalto', ach.id) | list %}
+                            <td data-label="{{ ach.name }}" style="text-align:center">
+                                {% if unlocked %}
+                                    <span style="color:#00ffff" title="Odemčeno {{ unlocked[0].unlocked_at.strftime('%d.%m.%Y') if unlocked[0].unlocked_at else '' }}">✅</span>
+                                {% else %}
+                                    <span style="color:#444">🔒</span>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     <!-- BĚŽNÝ UŽIVATEL -->
     {% elif current_user.is_authenticated %}
-        <main>
-            <!-- Levý sloupec: všechny herní session -->
-            <div class="left-box">
+        <main class="dashboard-main">
+
+            <!-- Tabulka všech session — celá šířka -->
+            <div class="full-box">
                 <h2>Všechny herní session</h2>
                 <table class="sortable">
                     <thead>
@@ -183,112 +218,70 @@
                 </table>
             </div>
 
-            <!-- Pravý sloupec: nejlepší statistiky a popis hry -->
-            <div class="right-box">
-                <div class="player-stats">
-                    <h3>Moje nejlepší hodnoty</h3>
-                    <div class="stats-blocks">
-                        <div class="stat-block">
-                            <h4>Zabito nepřátel</h4>
-                            <p>{{ best_stats.enemies_killed }}</p>
+            <!-- Spodní řada: statistiky + achievementy + popis hry -->
+            <div class="bottom-row">
+
+                <div class="right-box">
+                    <div class="player-stats">
+                        <h3>Moje nejlepší hodnoty</h3>
+                        <div class="stats-blocks">
+                            <div class="stat-block">
+                                <h4>Zabito nepřátel</h4>
+                                <p>{{ best_stats.enemies_killed }}</p>
+                            </div>
+                            <div class="stat-block">
+                                <h4>Kolize</h4>
+                                <p>{{ best_stats.player_collisions }}</p>
+                            </div>
+                            <div class="stat-block">
+                                <h4>Výstřelů</h4>
+                                <p>{{ best_stats.projectiles_fired }}</p>
+                            </div>
+                            <div class="stat-block">
+                                <h4>Zásahů</h4>
+                                <p>{{ best_stats.projectiles_hit }}</p>
+                            </div>
+                            <div class="stat-block">
+                                <h4>Nejlepší přesnost</h4>
+                                <p>{{ best_stats.accuracy | round(1) }}%</p>
+                            </div>
+                            <div class="stat-block">
+                                <h4>Nejdelší hra</h4>
+                                <p>
+                                    {% set minutes = (best_stats.time_played // 60) | int %}
+                                    {% set seconds = (best_stats.time_played % 60) | int %}
+                                    {{ minutes }}:{{ '%02d' % seconds }}
+                                </p>
+                            </div>
                         </div>
-                        <div class="stat-block">
-                            <h4>Kolize</h4>
-                            <p>{{ best_stats.player_collisions }}</p>
+                    </div>
+
+                    <div class="player-stats" style="margin-top: 20px;">
+                        <h3>Achievementy</h3>
+                        <div class="stats-blocks">
+                            {% for ach in achievements %}
+                            {% set unlocked = current_user.user_achievements | selectattr('achievement_id', 'equalto', ach.id) | list %}
+                            <div class="stat-block{% if unlocked %} unlocked{% else %} locked{% endif %}">
+                                <h4>{{ ach.icon }} {{ ach.name }}</h4>
+                                <p style="font-size: 0.85rem; color: #ccc;">{{ ach.description }}</p>
+                                {% if unlocked %}
+                                    <p style="color: #00ffff; font-size: 0.8rem;">✅ Odemčeno</p>
+                                {% else %}
+                                    <p style="color: #666; font-size: 0.8rem;">🔒 Zamčeno</p>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
                         </div>
-                        <div class="stat-block">
-                            <h4>Výstřelů</h4>
-                            <p>{{ best_stats.projectiles_fired }}</p>
-                        </div>
-                        <div class="stat-block">
-                            <h4>Zásahů</h4>
-                            <p>{{ best_stats.projectiles_hit }}</p>
-                        </div>
-                        <div class="stat-block">
-                            <h4>Nejlepší přesnost</h4>
-                            <p>{{ best_stats.accuracy | round(1) }}%</p>
-                        </div>
-                        <div class="stat-block">
-                            <h4>Nejdelší hra</h4>
-                            <p>
-                                {% set minutes = (best_stats.time_played // 60) | int %}
-                                {% set seconds = (best_stats.time_played % 60) | int %}
-                                {{ minutes }}:{{ '%02d' % seconds }}
-                            </p>
-                        </div>
+                    </div>
+
+                    <div class="game-description" style="margin-top: 20px;">
+                        <h2>O hře</h2>
+                        <p>Podrobný popis hry, ovládání, typy projektilů a návod na spuštění najdeš na stránce
+                        <a href="{{ url_for('diagrams') }}" style="color: #00ffff; font-weight: 600;">Diagramy a informace</a>.</p>
                     </div>
                 </div>
 
-                <!-- Achievementy -->
-                <div class="player-stats" style="margin-top: 20px;">
-                    <h3>Achievementy</h3>
-                    <div class="stats-blocks">
-                        {% for ach in achievements %}
-                        {% set unlocked = current_user.user_achievements | selectattr('achievement_id', 'equalto', ach.id) | list %}
-                        <div class="stat-block{% if unlocked %} unlocked{% else %} locked{% endif %}">
-                            <h4>{{ ach.icon }} {{ ach.name }}</h4>
-                            <p style="font-size: 0.85rem; color: #ccc;">{{ ach.description }}</p>
-                            {% if unlocked %}
-                                <p style="color: #00ffff; font-size: 0.8rem;">✅ Odemčeno</p>
-                            {% else %}
-                                <p style="color: #666; font-size: 0.8rem;">🔒 Zamčeno</p>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Popis hry -->
-                <div class="game-description">
-    <h2>O hře</h2>
-    <p><strong>Projectile Combat</strong> je rychlá arénová střílečka zasazená do temného vesmírného prostředí. Hráč ovládá malou, ale obratnou loďku (nebo postavu) a musí čelit vlnám nepřátel, kteří se ho snaží zničit. Každá hra je jedinečná díky náhodně generovaným efektům projektilů a neustále se zvyšující obtížnosti.</p>
-
-    <h3>Cíl hry</h3>
-    <p>Přežijte co nejdéle! S každým dalším nepřítelem roste vaše skóre a odemykají se nové výzvy. Hra končí, když vám dojde zdraví – pak se všechny statistiky z této hry uloží a vy se můžete porovnat s ostatními hráči na webovém dashboardu.</p>
-
-    <h3>Ovládání</h3>
-    <ul>
-        <li><strong>Pohyb:</strong> WASD – vlevo, vpravo, skok/létání (mezerník)</li>
-        <li><strong>Létání:</strong> Podržte <strong>mezerník</strong> – spotřebovává výdrž (staminu). Na zemi se výdrž regeneruje.</li>
-        <li><strong>Dash:</strong> Stiskněte <strong>CTRL</strong> + směr (A/D) – rychlý úskok s krátkou dobou nesmrtelnosti. Dash má cooldown.</li>
-        <li><strong>Střelba:</strong> Levé tlačítko myši – vystřelí projektil směrem ke kurzoru. Střelba má krátké zpoždění (300 ms).</li>
-    </ul>
-
-    <h3>Projektily a jejich efekty</h3>
-    <p>Každý výstřel má náhodnou barvu, která určuje speciální efekt. Díky tomu je každá hra pokaždé jiná:</p>
-    <ul>
-        <li><span style="color: #ff00ff;">Fialová (explosive)</span> – výbušný projektil, při zásahu poškodí i nepřátele v okolí.</li>
-        <li><span style="color: #00ff00;">Zelená (dot)</span> – způsobuje poškození v čase (Damage over Time).</li>
-        <li><span style="color: #ffffff;">Bílá (slow)</span> – zpomalí nepřítele na krátkou dobu.</li>
-        <li><span style="color: #ff00ff;">Světle fialová (pierce)</span> – průrazný projektil, může zasáhnout více nepřátel za sebou.</li>
-        <li><span style="color: #ffff00;">Žlutá (heal)</span> – při zásahu vás nepatrně vyléčí.</li>
-        <li><span style="color: #ff0000;">Červená (explosive)</span> – další varianta výbušného efektu.</li>
-    </ul>
-    <p>Projektily podléhají gravitaci a vzdušnému odporu, takže je třeba mířit s mírným nadhledem.</p>
-
-    <h3>Nepřátelé</h3>
-    <p>Nepřátelé se spawnují v pravidelných intervalech po stranách obrazovky a pohybují se směrem k hráči. Jejich rychlost a životy se postupně zvyšují. Každý nepřítel po smrti vytvoří efekt částic a přičte se do statistiky „Zabito nepřátel“.</p>
-
-    <h3>Zdraví a výdrž</h3>
-    <ul>
-        <li><strong>Zdraví:</strong> Ubývá při kontaktu s nepřítelem (maximálně jednou za 500 ms). Po pádu na nulu hra končí.</li>
-        <li><strong>Výdrž (stamina):</strong> Spotřebovává se při létání. Na zemi se rychle regeneruje. Bez výdrže nelze létat.</li>
-        <li><strong>Dash:</strong> Během dash jste nezranitelní. Cooldown dash je 1 vteřina.</li>
-    </ul>
-
-    <h3>Statistiky a ukládání</h3>
-    <p>Každá vaše hra je zaznamenána – vidíte datum, počet zabitých nepřátel, kolizí, výstřelů, zásahů a přesnost. Nejlepší výkony se ukládají do vašeho profilu a na webu si je můžete prohlížet a porovnávat s ostatními hráči. Admin má navíc přehled o všech uživatelích a jejich aktivitě.</p>
-
-    <h3>Tipy pro začátek</h3>
-    <ul>
-        <li>Nezůstávejte na místě – nepřátelé se pohybují neustále za vámi.</li>
-        <li>Využívejte dash k vyhýbání se těsným situacím.</li>
-        <li>Létání je užitečné, ale vyčerpává výdrž – plánujte, kdy usednete na zem.</li>
-        <li>Různé barvy projektilů mají různé efekty – experimentujte a najděte si svůj oblíbený styl.</li>
-    </ul>
-
-    <p><em>Hra je neustále ve vývoji. Těšíme se na vaše ohlasy a náměty na vylepšení!</em></p>
-</div>
+            </div><!-- /.bottom-row -->
         </main>
 
     <!-- NEPŘIHLÁŠENÝ UŽIVATEL -->
@@ -307,7 +300,7 @@
         <div class="footer-content">
           <div class="footer-section">
             <h4>Projectile Combat</h4>
-            <p>&copy; 2026-<span id="current-year"></span> Ondřej Novotný</p>
+            <p>&copy; 2026 Ondřej Novotný</p>
             <p>Všechna práva vyhrazena.</p>
           </div>
           <div class="footer-section">

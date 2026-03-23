@@ -62,6 +62,14 @@ WHERE user_id = 2 AND achievement_id = 1;
 DELETE FROM user
 WHERE username = 'garen';
 
--- 10. Smazání achievementu – CASCADE smaže i všechny vazby v user_achievement
-DELETE FROM achievement
-WHERE name = 'Ostrostřelec';
+-- 10. Odstranění duplicitních herních session
+--     Pokud byl insert.sql spuštěn vícekrát, vzniknou duplicitní záznamy
+--     v game_session (tabulka nemá UNIQUE constraint).
+--     Tento dotaz ponechá vždy jen první (nejnižší id) z každé skupiny duplicit.
+DELETE FROM game_session
+WHERE id NOT IN (
+    SELECT MIN(id)
+    FROM game_session
+    GROUP BY user_id, enemies_killed, player_collisions,
+             projectiles_fired, projectiles_hit, time_played
+);

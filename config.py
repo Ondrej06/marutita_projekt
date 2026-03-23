@@ -122,3 +122,17 @@ class MenuConfig:
 
     # Cesta k vlastnímu fontu Orbitron — sci-fi styl odpovídající vesmírnému tématu hry
     MENU_FONT_PATH = "Assets/font/Orbitron/static/Orbitron-Regular.ttf"
+
+
+# =============================================================================
+# SÍŤOVÁ KONFIGURACE
+# =============================================================================
+class AppConfig:
+    """
+    Síťové a aplikační konstanty.
+
+    Odděleny od GameConfig a MenuConfig, protože se týkají komunikace
+    se serverem, ne herní nebo menu logiky. Při změně portu stačí
+    upravit SERVER_URL zde — efekt se projeví v celém projektu.
+    """
+    SERVER_URL = "http://127.0.0.1:5000"  # Adresa Flask serveru — při změně portu upravte i base_url v states_game.py

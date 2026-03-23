@@ -1,155 +1,184 @@
-# marutita_projekt
+# Projectile Combat
 
-### 1. Požadavky
+2D arénová střílečka v Pygame propojená s webovým dashboardem na Flask.
 
-- Python **3.8 nebo novější**
-- Pip (součást instalace Pythonu)
-- Git (volitelně, pro klonování)
+---
 
-### 2. Stažení projektu
+## 1. Požadavky
+
+* Python **3.8 nebo novější**
+* Pip (součást instalace Pythonu)
+* Git (volitelně, pro klonování)
+
+---
+
+## 2. Stažení projektu
 
 ```bash
 git clone https://github.com/Ondrej06/marutita_projekt.git
 cd marutita_projekt
-nebo si stáhněte ZIP a rozbalte.
+```
 
-3. Instalace závislostí
+Nebo si stáhněte ZIP a rozbalte.
+
+---
+
+## 3. Instalace závislostí
+
 Otevřete terminál ve složce projektu a spusťte:
 
-bash
+```bash
 pip install pygame flask flask-sqlalchemy flask-bcrypt flask-login requests
-Tento příkaz nainstaluje:
+```
 
-Pygame – herní engine
+---
 
-Flask – webový framework
+## 4. Spuštění serveru
 
-Flask-SQLAlchemy – práce s databází
-
-Flask-Bcrypt – hashování hesel
-
-Flask-Login – správa uživatelských relací
-
-Requests – komunikace mezi hrou a serverem
-
-4. Spuštění serveru
 Server je nutný pro ukládání statistik do databáze a pro přístup na web.
 
-bash
+```bash
 python web/stranka/app.py
+```
+
 Po spuštění uvidíte:
 
-text
+```
  * Running on http://127.0.0.1:5000
-Nechte tento terminál otevřený. Server vytvoří databázi users.db a výchozího administrátora:
+```
 
-Email: admin@example.com
+Nechte tento terminál otevřený. Server vytvoří databázi `web/stranka/instance/users.db` a výchozího administrátora:
 
-Heslo: admin123
+* **Email:** admin@example.com
+* **Heslo:** admin123
 
-5. Spuštění hry
-Otevřete druhý terminál (nové okno) ve stejné složce a spusťte:
+---
 
-bash
+## 5. Spuštění hry
+
+Otevřete **druhý terminál** ve stejné složce a spusťte:
+
+```bash
 python menu.py
-Objeví se herní okno s úvodní obrazovkou (Intro). Po skončení hry se statistiky odešlou na server a uloží do databáze.
+```
 
-Poznámka: Pokud server neběží, hra se spustí normálně, ale statistiky se ukládají pouze do lokálního souboru game_stats.json. Při příštím spuštění serveru se data automaticky importují.
+Objeví se herní okno s úvodní obrazovkou. Po skončení hry se statistiky odešlou na server a uloží do databáze.
 
-6. Přístup na web
-Otevřete prohlížeč a přejděte na adresu http://127.0.0.1:5000. Zde můžete:
+> **Poznámka:** Pokud server neběží, hra se spustí normálně, ale statistiky se ukládají pouze do lokálního souboru `game_stats.json`.
 
-Registrovat nový účet
+---
 
-Přihlásit se
+## 6. Přístup na web
 
-Prohlížet všechny herní session (včetně ostatních hráčů)
+Otevřete prohlížeč na adrese  **http://127.0.0.1:5000** . Zde lze:
 
-Jako administrátor mazat uživatele
+* Registrovat nový účet
+* Přihlásit se
+* Prohlížet herní session všech hráčů
+* Jako administrátor mazat uživatele
+* Zobrazit diagramy a popis hry
 
-Zobrazit diagramy a podrobný popis hry
+---
 
- Struktura projektu
-text
+## Struktura projektu
+
+```
 marutita_projekt/
-├── Assets/                 # Grafické assety (např. back_1.png)
-├── sql/                    # SQL skripty (create, insert, select)
+├── Assets/                     # Grafické assety (back_1.png, font Orbitron)
+├── instance/                   # Vytvoří Flask automaticky (users.db)
+├── sql/
+│   ├── create.sql              # DDL — vytvoření tabulek
+│   ├── insert.sql              # Vzorová data
+│   ├── select.sql              # Ukázkové SELECT dotazy (JOIN, GROUP BY, filtrace)
+│   └── update_delete.sql       # UPDATE a DELETE příkazy
 ├── web/
 │   └── stranka/
-│       ├── static/         # CSS, obrázky (Flow.png, ERD.png)
-│       ├── templates/      # HTML šablony (dashboard.html, diagrams.html, login.html, register.html)
-│       └── app.py          # Flask server
-├── button.py               # Třída pro tlačítka v Pygame
-├── config.py               # Konfigurace hry a menu
-├── enemy.py                # Třída nepřítele
-├── game.py                 # Původní herní smyčka (lze spustit samostatně)
-├── game_stats.json         # Lokální záloha statistik (když server neběží)
-├── import_json_to_db.py    # Skript pro ruční import JSON do DB
-├── menu.py                 # Hlavní spouštěcí soubor hry (s menu)
-├── path.py                 # Cesty k souborům
-├── player.py               # Třída hráče
-├── projectiles.py          # Třída projektilu
-├── render.py               # Vykreslování UI ve hře
-├── states.py               # Stavy hry (intro, menu, hra, login, atd.)
-├── utils.py                # Pomocné funkce
-└── visuals.py              # Efekty (hvězdy, font cache)
- Použité technologie a knihovny
-Hra
-Pygame – herní engine
-
-Math, Random, Threading – standardní knihovny
-
-Web
-Flask – webový framework
-
-Flask-SQLAlchemy – ORM pro databázi
-
-Flask-Bcrypt – hashování hesel
-
-Flask-Login – správa uživatelských relací
-
-Requests – HTTP komunikace z Pygame na Flask
-
-Databáze
-SQLite – databáze (soubor users.db)
-
-SQLAlchemy – práce s DB přes Python
-
- Diagramy
-Na stránce Diagramy (přístupné z dashboardu) naleznete:
-
-Vývojový diagram – znázorňuje hlavní smyčku hry a přechody mezi stavy.
-
-ER diagram – struktura databáze (tabulky User a GameSession).
-
-Autor
-Ondřej Novotný 
-
-Projekt vznikl jako maturitní práce v roce 2025.
-
-Licence
-Tento projekt je určen pouze pro studijní účely. Všechna práva vyhrazena.
-
-Časté problémy
-pip není rozpoznán
-Použijte python -m pip install ... nebo přeinstalujte Python a zaškrtněte Add Python to PATH.
-
-Port 5000 je obsazený
-V souboru app.py změňte:
-
-python
-app.run(debug=True, port=5001)
-a v states.py upravte base_url na http://127.0.0.1:5001.
-
-Hra se nespouští (chybí Pygame)
-Ověřte instalaci: pip install pygame. Pokud problém přetrvává, zkuste starší verzi Pygame (pip install pygame==2.0.3).
-
-Import JSON se nespustí automaticky
-Pokud při startu serveru neproběhne import, spusťte ručně:
-
-bash
-python import_json_to_db.py
-text
-
-Tento README obsahuje vše potřebné – od popisu projektu, přes instalaci, až po strukturu a řešení problémů. Můžeš ho rovnou použít.
+│       ├── static/
+│       │   ├── ERD.png         # ER diagram databáze
+│       │   ├── Flow.png        # Vývojový diagram
+│       │   └── style.css       # Styly webových stránek
+│       ├── templates/
+│       │   ├── dashboard.html  # Šablona dashboardu
+│       │   ├── diagrams.html   # Šablona stránky s diagramy
+│       │   ├── login.html      # Šablona přihlášení
+│       │   └── register.html   # Šablona registrace
+│       └── app.py              # Flask server — REST API, webové stránky, modely DB
+├── app.py                      # Flask server — REST API, webové stránky, modely DB
+├── menu.py                     # Hlavní vstupní bod — Pygame smyčka, StateManager
+├── states.py                   # BaseState, ButtonMenuState, GameState enum
+├── states_menu.py              # IntroState, MainMenuState, SettingsState, GraphicsState, LoginState
+├── states_game.py              # PlayingState — herní logika, kolize, statistiky
+├── player.py                   # Třída Player — pohyb, létání, dash, zdraví
+├── enemy.py                    # Třída Enemy — pohyb, slow, dot efekty
+├── projectiles.py              # Třída Projectile — fyzika, stopa, efekty
+├── render.py                   # Renderer — HUD (zdraví, stamina, dash, FPS, overlay)
+├── button.py                   # Button a InputBox — UI komponenty menu
+├── utils.py                    # HelperFunctions — spawn, kolize, částice
+├── visuals.py                  # Colors, FontCache, hvězdné pozadí
+├── config.py                   # GameConfig a MenuConfig — všechny konstanty
+├── settings.py                 # Načítání/ukládání config.json, cesty k souborům
+├── import_jsonDB.py            # Ruční import game_stats.json do databáze
+├── run_sql.py                  # Nástroj pro spuštění SQL skriptů na databázi
+├── game_stats.json             # Záložní statistiky (když server neběží)
+├── config.json                 # Uživatelské nastavení (rozlišení, poslední uživatel)
+└── dokumentace.docx            # Projektová dokumentace
 ```
+
+---
+
+## Spuštění SQL skriptů
+
+SQL skripty se spouštějí z kořenové složky projektu nástrojem `run_sql.py`:
+
+```bash
+python run_sql.py sql/create.sql        # Vytvoří tabulky
+python run_sql.py sql/insert.sql        # Vloží vzorová data
+python run_sql.py sql/select.sql        # Ukázkové SELECT dotazy
+python run_sql.py sql/update_delete.sql # UPDATE a DELETE příkazy
+```
+
+> Databáze musí existovat — nejprve spusťte `python web/stranka/app.py`.
+
+---
+
+## Použité technologie
+
+| Oblast                     | Knihovna / nástroj               |
+| -------------------------- | --------------------------------- |
+| Herní engine              | Pygame                            |
+| Webový framework          | Flask                             |
+| ORM / databáze            | Flask-SQLAlchemy + SQLite         |
+| Hashování hesel          | Flask-Bcrypt                      |
+| Správa session (web)      | Flask-Login                       |
+| HTTP komunikace (hra→web) | Requests                          |
+| Standardní knihovny       | math, random, threading, json, os |
+
+---
+
+## Diagramy
+
+Na stránce **Diagramy** (dostupné z dashboardu) naleznete:
+
+* **Vývojový diagram** — hlavní smyčka hry a přechody mezi stavy
+* **ER diagram** — struktura databáze (User, GameSession, Achievement, UserAchievement)
+
+---
+
+## Autor
+
+**Ondřej Novotný** — maturitní práce 2026/2027
+
+---
+
+## Časté problémy
+
+| Problém                        | Řešení                                                                                                 |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `pip `není rozpoznán        | Použijte `python -m pip install ...`nebo přeinstalujte Python s volbou „Add Python to PATH"          |
+| Port 5000 je obsazený          | V `web/stranka/app.py`změňte na `app.run(port=5001)`, v `states_game.py`upravte `self.base_url` |
+| Hra se nespouští              | Ověřte:`pip install pygame`. Při problémech zkuste `pip install pygame==2.0.3`                    |
+| Statistiky se neukládají      | Zkontrolujte, zda běží server (`python web/stranka/app.py`); záloha jde do `game_stats.json`      |
+| Import JSON selže              | Spusťte ručně:`python import_jsonDB.py`                                                              |
+| `run_sql.py`nenajde databázi | Nejprve spusťte server, který databázi vytvoří                                                       |
+
+---

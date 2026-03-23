@@ -1,3 +1,10 @@
+-- ============================================================
+-- Vyčištění předchozích testovacích dat (idempotentní spuštění)
+-- Smaže jen testovací uživatele — admin a reálné hráče ponechá.
+-- CASCADE automaticky smaže i jejich game_session a user_achievement záznamy.
+-- ============================================================
+DELETE FROM user WHERE username IN ('emil', 'gragas', 'garen');
+
 -- Vložení uživatelů
 INSERT INTO user (username, email, password, is_admin, enemies_killed, player_collisions, projectiles_fired, projectiles_hit, time_played)
 VALUES 

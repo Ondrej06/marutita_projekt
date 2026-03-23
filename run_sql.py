@@ -7,15 +7,15 @@ Použití:
     python run_sql.py <sql_soubor>
 
 Příklady:
-    python run_sql.py create.sql        # Vytvoří tabulky
-    python run_sql.py insert.sql        # Vloží vzorová data
-    python run_sql.py select.sql        # Spustí SELECT dotazy (výsledky se nezobrazí)
-    python run_sql.py update_delete.sql # Spustí UPDATE/DELETE příkazy
+    python run_sql.py sql/create.sql        # Vytvoří tabulky
+    python run_sql.py sql/insert.sql        # Vloží vzorová data
+    python run_sql.py sql/select.sql        # Spustí SELECT dotazy (výsledky se nezobrazí)
+    python run_sql.py sql/update_delete.sql # Spustí UPDATE/DELETE příkazy
 
 Poznámka:
     Databáze se nachází v instance/users.db — tuto cestu vytváří Flask
     automaticky při prvním spuštění app.py. Ujistěte se, že složka
-    instance/ existuje před spuštěním tohoto skriptu.
+    instance/ existuje (tj. nejprve spusťte python app.py).
 """
 
 import sqlite3
@@ -64,5 +64,6 @@ if __name__ == "__main__":
         print("Příklad: python run_sql.py create.sql")
         sys.exit(1)
 
-    # Spuštění SQL skriptu na databázi v instance/users.db
+    # Spuštění SQL skriptu na databázi.
+    # Flask vytváří instance/ složku relativně k app.py v kořeni projektu.
     execute_sql_file("instance/users.db", sys.argv[1])

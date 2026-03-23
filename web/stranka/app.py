@@ -29,9 +29,14 @@ from sqlalchemy import func
 # INICIALIZACE APLIKACE A ROZŠÍŘENÍ
 # =============================================================================
 
+import os as _os
+
+# app.py, templates/ a static/ jsou ve stejné složce (kořen projektu).
+# Flask je najde automaticky bez explicitního nastavení cest.
+_BASE = _os.path.dirname(_os.path.abspath(__file__))
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tajny_klic'
-# Cesta k SQLite databázi — Flask automaticky vytvoří složku instance/
+# Cesta k SQLite databázi — Flask automaticky vytvoří složku instance/ vedle app.py
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 
 db            = SQLAlchemy(app)    # ORM pro práci s databází
@@ -139,34 +144,36 @@ class UserAchievement(db.Model):
 # POMOCNÉ FUNKCE
 # =============================================================================
 
-def check_and_unlock_achievements(user: User) -> None:
+def check_and_unlock_achievements(user: User, session: GameSession) -> None:
     """
     Zkontroluje podmínky achievementů a odemkne splněné pro daného uživatele.
 
     Volá se po každém uložení herní session v api_update_stats().
-    Pracuje s kumulativními statistikami uživatele (ne jednou session).
-
-    Podmínky:
-      "První krev"    — uživatel celkově zabil >= 1 nepřítele
-      "Ostrostřelec"  — celková přesnost >= 80 %
-      "Nezranitelný"  — 0 kolizí celkově a >= 5 zabitých nepřátel
+    „První krev" a „Nezranitelný" se kontrolují na kumulativních statistikách,
+    „Ostrostřelec" se kontroluje na konkrétní session (dle podmínky „v jedné hře").
 
     Args:
         user: Instance User, jejíž achievementy se kontrolují.
+        session: Právě uložená GameSession pro per-session podmínky.
     """
     # Množina ID již odemčených achievementů — O(1) lookup při kontrole
     already_unlocked = {ua.achievement_id for ua in user.user_achievements}
+
+    # Přesnost v této konkrétní hře (pro achievement "Ostrostřelec")
+    session_accuracy = (
+        (session.projectiles_hit / session.projectiles_fired) >= 0.8
+        if session.projectiles_fired > 0 else False
+    )
 
     conditions = [
         ("První krev",
          user.enemies_killed >= 1),
 
         ("Ostrostřelec",
-         user.projectiles_fired > 0
-         and (user.projectiles_hit / user.projectiles_fired) >= 0.8),
+         session_accuracy),   # podmínka platí pro jednu hru, ne kumulativně
 
         ("Nezranitelný",
-         user.player_collisions == 0 and user.enemies_killed >= 5),
+         session.player_collisions == 0 and session.enemies_killed >= 5),
     ]
 
     for name, condition in conditions:
@@ -224,7 +231,7 @@ def api_update_stats():
     db.session.commit()  # Commit před achievementy — statistiky musí být aktuální
 
     # Kontrola a odemčení achievementů na základě aktualizovaných statistik
-    check_and_unlock_achievements(user)
+    check_and_unlock_achievements(user, session)
     db.session.commit()
 
     return jsonify({"success": True})
@@ -241,7 +248,7 @@ def load_user(user_id: str) -> User:
     Returns:
         User instance nebo None (= uživatel není přihlášen).
     """
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
 @app.route("/api/register", methods=["POST"])

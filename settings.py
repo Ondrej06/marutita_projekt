@@ -1,15 +1,36 @@
 """
 settings.py
 ===========
-Načítání a ukládání uživatelského nastavení aplikace.
+Správa cest k souborům a uživatelského nastavení aplikace.
 
-Nastavení je persistentně uloženo v souboru config.json ve stejné
-složce jako aplikace. Při každém spuštění se načte, při změně uloží.
-Pokud soubor neexistuje nebo je poškozený, použijí se výchozí hodnoty.
+Modul sdružuje dvě věci, které spolu logicky patří:
+  1. Konstanty cest k externím souborům (obrázky, JSON záloha).
+  2. Načítání a ukládání config.json mezi spuštěními.
+
+Při změně umístění souboru nebo portu serveru stačí upravit hodnotu
+zde — efekt se projeví v celém projektu.
 """
 
 import json
 import os
+
+
+# =============================================================================
+# CESTY K SOUBORŮM
+# =============================================================================
+
+# Obrázek pozadí herní plochy (načítá se v PlayingState).
+# os.path.join zajišťuje správné lomítko na Windows i Mac/Linux.
+BACKGROUND = os.path.join("Assets", "back_1.png")
+
+# Záložní JSON soubor pro ukládání statistik, když Flask server neběží.
+# Při příštím startu serveru se data automaticky importují do databáze.
+JSON_SAVE = "game_stats.json"
+
+
+# =============================================================================
+# KONFIGURACE UŽIVATELSKÉHO NASTAVENÍ
+# =============================================================================
 
 # Název konfiguračního souboru (relativní cesta ke spouštěcímu skriptu)
 CONFIG_FILE = "config.json"

@@ -1,11 +1,12 @@
 """
 button.py
 =========
-Třída Button pro interaktivní tlačítka v Pygame menu.
+UI komponenty pro Pygame menu: Button a InputBox.
 
-Tlačítka reagují na pohyb myši plynulou animací (zvětšení textu,
-zvýšení jasu) a sinusovým pulzem pro živý look. Každé tlačítko
-má přiřazenou akci (callable), která se zavolá při kliknutí.
+Button  — animované textové tlačítko s hover efektem a sinusovým pulzem.
+InputBox — textové vstupní pole používané v přihlašovacím formuláři.
+
+Obě třídy jsou vizuální vstupní prvky menu, proto patří do jednoho modulu.
 """
 
 import math
@@ -88,8 +89,6 @@ class Button:
         self.target_color = 255 if hovered else 200
 
         # Exponenciální interpolace k cílovým hodnotám (lerp faktor 10/s)
-        # Vzorec: current += (target - current) * factor * dt
-        # Při dt=1/144 a faktoru 10: každý snímek se přiblíží o ~6,7 %
         self.font_size = (
             min(max(self.font_size, 0), self.target_size)
             + (self.target_size - self.font_size) * dt * 10
@@ -106,9 +105,6 @@ class Button:
         """
         Zavolá přiřazenou akci tlačítka a přehraje klikací zvuk.
 
-        Volá se z handle_event() stavu, když hráč klikne na tlačítko.
-        Pokud tlačítko nemá akci nebo není enabled, nic se nestane.
-
         Returns:
             Návratová hodnota akce, nebo False pokud akce neexistuje.
         """
@@ -122,26 +118,22 @@ class Button:
         Vykreslí tlačítko na zadaný povrch.
 
         Barva textu pulzuje sinusovou funkcí pro živý, dynamický vzhled.
-        Velikost fontu je interpolovaná hodnota z update() — plynulá animace.
         Aktualizuje self.rect pro detekci kolizí v update() a handle_click().
 
         Args:
             surface: Cílový pygame povrch.
 
         Returns:
-            pygame.Rect: Bounding box vykresleného textu (pro debug/kliknutí).
+            pygame.Rect: Bounding box vykresleného textu.
         """
         # Sinusový pulz: ±15 bodů jasu synchronizovaný s herním časem
         pulse = math.sin(pygame.time.get_ticks() / 1000.0 * 2 * math.pi) * 15
 
-        # Výsledná barva: interpolovaná hodnota + pulz, oříznutá na 0–255
         display_color = int(max(0, min(255, self.color_value + pulse)))
 
-        # Získej font ze cache pro aktuální (animovanou) velikost
         font = font_cache.get(self.font_size)
         text_surface = font.render(self.text, True, (display_color,) * 3)
 
-        # Umísti text na střed tlačítka a aktualizuj rect
         self.rect = text_surface.get_rect(center=self.center)
         surface.blit(text_surface, self.rect)
 
@@ -149,7 +141,78 @@ class Button:
 
 
 # =============================================================================
-# ZVUKOVÉ EFEKTY (zatím prázdné — rezerva pro budoucí implementaci)
+# VSTUPNÍ POLE
+# =============================================================================
+
+class InputBox:
+    """
+    Interaktivní textové vstupní pole pro Pygame UI.
+
+    Používá se v LoginState pro zadání uživatelského jména a hesla.
+    Podporuje zobrazení hesla jako hvězdiček (is_password=True).
+
+    Attributes:
+        rect (pygame.Rect): Ohraničující obdélník pole.
+        color (pygame.Color): Aktuální barva rámečku (šedá = neaktivní, bílá = aktivní).
+        text (str): Aktuální obsah pole.
+        active (bool): True = pole přijímá klávesové vstupy.
+        is_password (bool): True = zobrazuje hvězdičky místo znaků.
+    """
+
+    def __init__(self, x: int, y: int, w: int, h: int,
+                 font: pygame.font.Font, is_password: bool = False):
+        """
+        Args:
+            x, y: Pozice levého horního rohu pole (px).
+            w, h: Šířka a výška pole (px).
+            font: Pygame font pro vykreslení textu.
+            is_password: True = maskuje obsah hvězdičkami.
+        """
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color_inactive = pygame.Color('gray')
+        self.color_active   = pygame.Color('white')
+        self.color = self.color_inactive
+        self.text = ""
+        self.font = font
+        self.active = False
+        self.is_password = is_password
+
+    def handle_event(self, event: pygame.event.Event) -> None:
+        """
+        Zpracuje pygame událost relevantní pro vstupní pole.
+
+        Klik myší: aktivuje/deaktivuje pole.
+        Klávesa: přidá znak nebo smaže poslední (Backspace). Enter je ignorován.
+
+        Args:
+            event: Pygame událost z hlavní smyčky.
+        """
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self.active = self.rect.collidepoint(event.pos)
+            self.color = self.color_active if self.active else self.color_inactive
+
+        if event.type == pygame.KEYDOWN and self.active:
+            if event.key == pygame.K_BACKSPACE:
+                self.text = self.text[:-1]
+            elif event.key != pygame.K_RETURN:
+                self.text += event.unicode
+
+    def draw(self, surface: pygame.Surface) -> None:
+        """
+        Vykreslí vstupní pole na zadaný povrch.
+
+        Args:
+            surface: Cílový pygame povrch.
+        """
+        display_text = "*" * len(self.text) if self.is_password else self.text
+
+        txt_surface = self.font.render(display_text, True, (255, 255, 255))
+        surface.blit(txt_surface, (self.rect.x + 10, self.rect.y + 8))
+        pygame.draw.rect(surface, self.color, self.rect, 2)
+
+
+# =============================================================================
+# ZVUKOVÉ EFEKTY (rezerva pro budoucí implementaci)
 # =============================================================================
 
 def play_hover_sound() -> None:

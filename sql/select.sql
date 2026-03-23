@@ -71,18 +71,3 @@ FROM user u
 LEFT JOIN user_achievement ua ON u.id = ua.user_id
 GROUP BY u.id
 ORDER BY achievements_unlocked DESC;
-
--- UPDATE: Aktualizace celkových statistik uživatele po nové hře
-UPDATE user
-SET enemies_killed = enemies_killed + 10,
-    projectiles_fired = projectiles_fired + 50,
-    projectiles_hit = projectiles_hit + 30,
-    time_played = time_played + 300.0
-WHERE id = 1;
-
--- DELETE: Smazání konkrétní herní session (např. testovací záznam)
-DELETE FROM game_session
-WHERE id = 1;
-
--- DELETE CASCADE ukázka: Smazání uživatele smaže i jeho session a achievementy
--- DELETE FROM user WHERE id = 3;

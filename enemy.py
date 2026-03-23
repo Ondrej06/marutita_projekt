@@ -8,6 +8,8 @@ k hráči. Podporují efekty slow (zpomalení pohybu) a dot (damage
 over time). Při zásahu vizuálně blikají interpolací barvy.
 """
 
+import math
+
 import pygame
 from visuals import Colors
 from config import GameConfig
@@ -122,10 +124,10 @@ class Enemy:
 
     def draw(self, screen: pygame.Surface) -> None:
         """
-        Vykreslí nepřítele jako kruh.
+        Vykreslí nepřítele jako stylizovaný energetický kruh s červenou tématikou.
 
         Pokud je aktivní hurt_timer (nedávný zásah), barva se interpoluje
-        od normální ENEMY barvy k bílé — vytváří efekt bliknutí.
+        od normální červené k bílé — vytváří efekt bliknutí.
         Intenzita bliknutí klesá lineárně s ubývajícím hurt_timerem.
 
         Args:
@@ -134,20 +136,72 @@ class Enemy:
         if not self.is_alive:
             return
 
-        if self.hurt_timer > 0:
-            # t: 1.0 = zrovna zasažen (plně bílý), 0.0 = efekt skončil
-            t = max(0.0, min(1.0, self.hurt_timer / self.flash_time))
+        center = (int(self.pos.x), int(self.pos.y))
+        r = self.radius
 
-            # Lineární interpolace barvy: ENEMY → bílá podle t
+        # Výpočet aktuální barvy podle hurt_timeru (blikání)
+        if self.hurt_timer > 0:
+            t = max(0.0, min(1.0, self.hurt_timer / self.flash_time))
+            # Interpolace: základní červená → bílá
+            base_color = Colors.ENEMY  # předpokládám, že Colors.ENEMY je červená
             flash_col = (
-                int(Colors.ENEMY[0] + (255 - Colors.ENEMY[0]) * t),
-                int(Colors.ENEMY[1] + (255 - Colors.ENEMY[1]) * t),
-                int(Colors.ENEMY[2] + (255 - Colors.ENEMY[2]) * t),
+                int(base_color[0] + (255 - base_color[0]) * t),
+                int(base_color[1] + (255 - base_color[1]) * t),
+                int(base_color[2] + (255 - base_color[2]) * t),
             )
-            pygame.draw.circle(screen, flash_col, (int(self.pos.x), int(self.pos.y)), self.radius)
         else:
-            # Normální barva bez efektu
-            pygame.draw.circle(screen, Colors.ENEMY, (int(self.pos.x), int(self.pos.y)), self.radius)
+            base_color = Colors.ENEMY
+            flash_col = base_color
+
+        # 1. Vnější záře (jemně průhledná)
+        glow_radius = r + 4
+        glow_surf = pygame.Surface((glow_radius*2, glow_radius*2), pygame.SRCALPHA)
+        glow_color = (*flash_col[:3], 50)  # použijeme aktuální barvu s alfa 50
+        pygame.draw.circle(glow_surf, glow_color, (glow_radius, glow_radius), glow_radius)
+        screen.blit(glow_surf, (center[0] - glow_radius, center[1] - glow_radius))
+
+        # 2. Hlavní tělo (tmavší varianta aktuální barvy)
+        dark_body = (
+            max(flash_col[0] - 50, 20),
+            max(flash_col[1] - 50, 20),
+            max(flash_col[2] - 50, 20)
+        )
+        pygame.draw.circle(screen, dark_body, center, r)
+
+        # 3. Vnitřní prstenec (světlejší okraj)
+        ring_radius = r - 3
+        ring_width = 3
+        ring_color = (
+            min(flash_col[0] + 40, 255),
+            min(flash_col[1] + 40, 255),
+            min(flash_col[2] + 40, 255)
+        )
+        pygame.draw.circle(screen, ring_color, center, ring_radius, ring_width)
+
+        # 4. Pulzující jádro (velikost se mění v čase)
+        if not hasattr(self, '_last_time'):
+            self._last_time = pygame.time.get_ticks()
+            self._pulse_phase = 0
+
+        current_time = pygame.time.get_ticks()
+        dt = current_time - self._last_time
+        self._last_time = current_time
+        self._pulse_phase += dt * 0.005  # rychlost pulzování
+        core_radius = int(r * (0.5 + 0.2 * (1 + math.sin(self._pulse_phase)) / 2))
+
+        # Středové jádro – sytá, zářivá barva (při blikání bílá)
+        core_color = flash_col
+        pygame.draw.circle(screen, core_color, center, core_radius)
+
+        # 5. Odlesk (malý bílý bod)
+        highlight_radius = max(1, r // 6)
+        highlight_offset = r // 3
+        highlight_pos = (center[0] - highlight_offset, center[1] - highlight_offset)
+        pygame.draw.circle(screen, (255, 255, 255), highlight_pos, highlight_radius)
+
+        # 6. Obrys pro kontrast (použijeme světlejší verzi barvy)
+        outline_color = ring_color
+        pygame.draw.circle(screen, outline_color, center, r, width=1)
 
     # =========================================================================
     # EFEKTY — VOLÁNY Z HERNÍ SMYČKY

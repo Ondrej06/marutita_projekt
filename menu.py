@@ -3,7 +3,8 @@ menu.py
 =======
 Hlavní vstupní bod aplikace — spouštěcí skript menu a hry.
 
-Tento soubor inicializuje Pygame, načte konfiguraci, vytvoří
+Tento soubor inicializuje Pygame, načte konfiguraci z config.json,
+synchronizuje rozlišení do GameConfig a MenuConfig, vytvoří
 StateManager se všemi stavy a spustí hlavní smyčku.
 
 Spuštění:
@@ -13,24 +14,22 @@ Architektura:
     StateManager drží aktuální stav (Intro, MainMenu, Playing atd.)
     a deleguje události, update a render na jeho implementaci.
     Pozadí (hvězdy, meteory) se vykresluje vždy — nezávisle na stavu.
+
+    Rozlišení okna se načítá z config.json a přepisuje výchozí hodnoty
+    GameConfig.WIDTH/HEIGHT i MenuConfig.MENU_SCREEN_WIDTH/HEIGHT,
+    takže všechny moduly pracují s aktuálně nastaveným rozlišením.
 """
 
 import pygame
 import random
 from config import GameConfig, MenuConfig
 from visuals import update_stars, draw_stars
-from states import (
-    GameState,
-    IntroState,
-    LoginState,
-    MainMenuState,
-    SettingsState,
-    PlayingState,
-    GraphicsState,
-)
+from states import GameState
+from states_menu import IntroState, LoginState, MainMenuState, SettingsState, GraphicsState
+from states_game import PlayingState
 from settings import load_config
 
-# ── Načtení konfigurace a aplikace na GameConfig ─────────────────────────────
+# ── Načtení konfigurace a synchronizace rozlišení ────────────────────────────
 config = load_config()
 width, height = config["resolution"]
 
@@ -39,7 +38,7 @@ width, height = config["resolution"]
 GameConfig.WIDTH = width
 GameConfig.HEIGHT = height
 
-screen = pygame.display.set_mode((width, height))
+# Poznámka: pygame.display.set_mode() se volá až uvnitř main() po pygame.init()
 
 
 # =============================================================================
@@ -131,8 +130,10 @@ class StateManager:
         self.states = {}
         self.current = None
         self.running = True
-        # user_data se nastaví v LoginState po úspěšném přihlášení
-        # Formát: { 'user': { 'id': int, 'username': str, 'is_admin': bool } }
+        # Inicializováno jako None — přihlášení nastaví hodnotu v LoginState.
+        # Formát po přihlášení: { 'user': { 'id': int, 'username': str, 'is_admin': bool } }
+        # Díky inicializaci zde není potřeba hasattr() kontrola nikde v projektu.
+        self.user_data = None
 
     def register(self, key: GameState, state_obj) -> None:
         """
@@ -237,17 +238,23 @@ def main() -> None:
 
     Postup:
       1. Inicializace Pygame.
-      2. Vytvoření okna a hodin.
-      3. Generování statického pozadí a systému meteorů.
-      4. Vytvoření StateManageru, registrace všech stavů.
-      5. Spuštění stavu INTRO.
-      6. Hlavní smyčka: events → update → render → flip.
+      2. Synchronizace MenuConfig s rozlišením z config.json.
+      3. Vytvoření okna a hodin.
+      4. Generování statického pozadí a systému meteorů.
+      5. Vytvoření StateManageru, registrace všech stavů.
+      6. Spuštění stavu INTRO.
+      7. Hlavní smyčka: events → update → render → flip.
     """
     pygame.init()
 
-    width  = MenuConfig.MENU_SCREEN_WIDTH
-    height = MenuConfig.MENU_SCREEN_HEIGHT
+    # Rozměry okna z config.json (GameConfig byl přepsán při startu menu.py)
+    width  = GameConfig.WIDTH
+    height = GameConfig.HEIGHT
 
+    # Synchronizace MenuConfig — ostatní moduly čtou MenuConfig při importu,
+    # toto zajistí konzistenci pro veškeré dynamické dotazy
+    MenuConfig.MENU_SCREEN_WIDTH  = width
+    MenuConfig.MENU_SCREEN_HEIGHT = height
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Menu")
     clock = pygame.time.Clock()
